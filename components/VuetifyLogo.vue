@@ -2,14 +2,13 @@
   <img
     class="VuetifyLogo"
     alt="Vuetify Logo"
-    src="/vuetify-logo.svg"
+    src="/Bitcoin-Logo.png"
   >
 </template>
 
 <style>
 .VuetifyLogo {
-  height: 180px;
-  width: 180px;
+  height: 200px;
   transform: rotateY(560deg);
   animation: turn 3.5s ease-out forwards 1s;
 }
