@@ -42,6 +42,7 @@
 
     </v-app-bar>
     <v-main>
+      <span class="bg"></span>
       <v-container>
         <Nuxt />
       </v-container>
@@ -66,7 +67,19 @@
 
   </v-app>
 </template>
-
+<style>
+  .bg {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    background: url( 'https://wallpapercave.com/wp/HWtnBHH.jpg') no-repeat center center;
+    background-size: cover;
+    background-color: red;
+    transform: scale(1.1);
+  }
+</style>
 <script>
 export default {
   data () {
