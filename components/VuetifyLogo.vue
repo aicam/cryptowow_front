@@ -1,5 +1,6 @@
 <template>
   <img
+    height="200vh"
     class="VuetifyLogo"
     alt="Vuetify Logo"
     src="/Bitcoin-Logo.png"
@@ -8,7 +9,6 @@
 
 <style>
 .VuetifyLogo {
-  height: 200px;
   transform: rotateY(560deg);
   animation: turn 3.5s ease-out forwards 1s;
 }
