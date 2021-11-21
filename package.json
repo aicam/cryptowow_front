@@ -9,8 +9,10 @@
     "generate": "nuxt generate"
   },
   "dependencies": {
+    "@smithalan2/vue-countdown": "^1.0.2",
     "core-js": "^3.15.1",
     "nuxt": "^2.15.7",
+    "vuejs-countdown": "^0.2.1",
     "vuetify": "^2.5.5"
   },
   "devDependencies": {

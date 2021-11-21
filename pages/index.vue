@@ -1,5 +1,6 @@
 <template>
   <v-row>
+    <EventsDialog :dialog="eventsDialogShow" @clicked="this.closeDialog" />
     <v-row justify="center" align="center">
       <v-col>
         <v-row class="justify-center">
@@ -13,7 +14,7 @@
         </v-card>
         <v-card>
           <v-card-title class="headline justify-center">
-            <p class="font-weight-bold card_title"> Play World of Warcraft with Cryptocurrency payment </p>
+            <p class="font-weight-bold card_title"> Play World of Warcraft with Cryptocurrency Payment </p>
           </v-card-title>
           <v-card-text>
             <p>Vuetify is a progressive Material Design component framework for Vue.js. It was designed to empower
@@ -27,7 +28,7 @@
               nuxt
               to="/inspire"
             >
-              Continue
+              Sign Up
             </v-btn>
           </v-card-actions>
         </v-card>
@@ -35,7 +36,7 @@
       <v-col cols="12" sm="2" md="2">
         <v-card>
           <v-row style="padding: 10px;" justify="center" align="center">
-            <v-btn block style="background-color: #7F828B;">
+            <v-btn block style="background-color: #7F828B;" v-on:click="eventsDialogShow = true">
               <v-icon color="#D0BD73" large>
                 mdi-seal
               </v-icon>
@@ -101,17 +102,21 @@
   }
 </style>
 <script>
-    import HorizontalBanner from "../components/HorizontalBanner";
 
+
+    import EventsDialog from "../components/EventsDialog";
     export default {
-        components: {HorizontalBanner},
-        data: () => ({
+        data: function () {
+            return ({
+            eventsDialogShow: false,
             selectedItem: 1,
             items: [
                 {text: 'Bug Tracker', icon: 'mdi-clock'},
                 {text: 'Guide', icon: 'mdi-account'},
                 {text: 'Q&A', icon: 'mdi-flag'},
-            ],
-        }),
+            ]})
+        },
+        methods: {closeDialog: function ()  {this.eventsDialogShow = false}},
+        components: {EventsDialog},
     }
 </script>

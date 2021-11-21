@@ -76,7 +76,6 @@
     left: 0;
     background: url( 'https://wallpapercave.com/wp/HWtnBHH.jpg') no-repeat center center;
     background-size: cover;
-    background-color: red;
     transform: scale(1.1);
   }
 </style>
@@ -95,7 +94,7 @@ export default {
         },
         {
           icon: 'mdi-chart-bubble',
-          title: 'Inspire',
+          title: 'Login',
           to: '/inspire'
         }
       ],
