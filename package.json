@@ -9,6 +9,8 @@
     "generate": "nuxt generate"
   },
   "dependencies": {
+    "@nuxtjs/auth": "^4.5.1",
+    "@nuxtjs/axios": "^5.13.6",
     "@smithalan2/vue-countdown": "^1.0.2",
     "core-js": "^3.15.1",
     "nuxt": "^2.15.7",
@@ -16,6 +18,7 @@
     "vuetify": "^2.5.5"
   },
   "devDependencies": {
+    "@nuxtjs/color-mode": "^2.1.1",
     "@nuxtjs/vuetify": "^1.12.1"
   }
 }

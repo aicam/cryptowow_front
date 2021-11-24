@@ -36,6 +36,8 @@
       >
         <v-icon>mdi-{{ `chevron-${miniVariant ? 'right' : 'left'}` }}</v-icon>
       </v-btn>
+      <v-switch
+
       <v-spacer />
       <img src="~/static/title_banner.png" height="110px" style="margin-top: 40px;"/>
       <v-spacer />
@@ -81,6 +83,9 @@
 </style>
 <script>
 export default {
+  mounted () {
+      // $colorMode.preference = color
+  },
   data () {
     return {
       clipped: false,
@@ -94,8 +99,13 @@ export default {
         },
         {
           icon: 'mdi-chart-bubble',
-          title: 'Login',
+          title: 'Test',
           to: '/inspire'
+        },
+        {
+          icon: 'mdi-account-arrow-left',
+          title: 'Login',
+          to: '/login'
         }
       ],
       miniVariant: false,

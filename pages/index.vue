@@ -102,8 +102,6 @@
   }
 </style>
 <script>
-
-
     import EventsDialog from "../components/EventsDialog";
     export default {
         data: function () {
