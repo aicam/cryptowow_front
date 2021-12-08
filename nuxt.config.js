@@ -80,6 +80,9 @@ export default {
   },
 
   auth: {
+    redirect: {
+      home: '/login_succeed'
+    },
     strategies: {
       local: {
         token: {
