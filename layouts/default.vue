@@ -9,6 +9,7 @@
     >
       <v-list>
         <v-list-item
+          v-if="item.show"
           v-for="(item, i) in items"
           :key="i"
           :to="item.to"
@@ -19,8 +20,17 @@
             <v-icon>{{ item.icon }}</v-icon>
           </v-list-item-action>
           <v-list-item-content>
-            <v-list-item-title v-text="item.title" />
+            <v-list-item-title v-text="item.title"/>
           </v-list-item-content>
+        </v-list-item>
+        <v-list-item
+          exact
+        >
+          <v-btn
+            v-if="isLoggedIn"
+            @click="logoutUser">
+            Logout
+          </v-btn>
         </v-list-item>
       </v-list>
     </v-navigation-drawer>
@@ -29,7 +39,7 @@
       fixed
       app
     >
-      <v-app-bar-nav-icon @click.stop="drawer = !drawer" />
+      <v-app-bar-nav-icon @click.stop="drawer = !drawer"/>
       <v-btn
         icon
         @click.stop="miniVariant = !miniVariant"
@@ -38,15 +48,15 @@
       </v-btn>
       <v-switch
 
-      <v-spacer />
+      <v-spacer/>
       <img src="~/static/title_banner.png" height="110px" style="margin-top: 40px;"/>
-      <v-spacer />
+      <v-spacer/>
 
     </v-app-bar>
     <v-main>
       <span class="bg"></span>
       <v-container>
-        <Nuxt />
+        <Nuxt/>
       </v-container>
     </v-main>
     <v-navigation-drawer
@@ -76,43 +86,67 @@
     position: absolute;
     top: 0;
     left: 0;
-    background: url( 'https://wallpapercave.com/wp/HWtnBHH.jpg') no-repeat center center;
+    background: url('https://wallpapercave.com/wp/HWtnBHH.jpg') no-repeat center center;
     background-size: cover;
     transform: scale(1.1);
   }
 </style>
 <script>
-export default {
-  mounted () {
-      // $colorMode.preference = color
-  },
-  data () {
-    return {
-      clipped: false,
-      drawer: false,
-      fixed: false,
-      items: [
-        {
-          icon: 'mdi-apps',
-          title: 'Welcome',
-          to: '/'
+    import { mapGetters } from 'vuex'
+
+    export default {
+        computed() {
+            mapGetters(['isAuthenticated'])
         },
-        {
-          icon: 'mdi-chart-bubble',
-          title: 'Test',
-          to: '/inspire'
+        mounted() {
+            // $colorMode.preference = color
         },
-        {
-          icon: 'mdi-account-arrow-left',
-          title: 'Login',
-          to: '/login'
+        methods: {
+            logoutUser: function () {
+                this.$auth.logout()
+            },
+            // isLoggedIn: function () {
+            //     console.log('checked ' + this.$auth.loggedIn);
+            //     return this.$auth.loggedIn
+            // }
+        },
+        data() {
+            return {
+                isLoggedIn: this.$auth.loggedIn,
+                clipped: false,
+                drawer: false,
+                fixed: false,
+                items: [
+                    {
+                        icon: 'mdi-apps',
+                        title: 'Welcome',
+                        to: '/',
+                        show: true,
+                    },
+                    {
+                        icon: 'mdi-chart-bubble',
+                        title: 'Test',
+                        to: '/inspire',
+                        show: true
+                    },
+                    {
+                        icon: 'mdi-account-arrow-left',
+                        title: 'Login',
+                        to: '/login',
+                        show: !this.$auth.loggedIn
+                    },
+                    {
+                        icon: "mdi-account-plus",
+                        title: 'Sign Up',
+                        to: '/register',
+                        show: !this.$auth.loggedIn
+                    }
+                ],
+                miniVariant: false,
+                right: true,
+                rightDrawer: false,
+                title: 'Vuetify.js'
+            }
         }
-      ],
-      miniVariant: false,
-      right: true,
-      rightDrawer: false,
-      title: 'Vuetify.js'
     }
-  }
-}
 </script>

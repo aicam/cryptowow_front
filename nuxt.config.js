@@ -41,7 +41,7 @@ export default {
   // Modules: https://go.nuxtjs.dev/config-modules
   modules: [
     '@nuxtjs/axios',
-    '@nuxtjs/auth'
+    '@nuxtjs/auth-next'
   ],
   colorMode: {
     preference: 'system', // default value of $colorMode.preference
@@ -82,11 +82,15 @@ export default {
   auth: {
     strategies: {
       local: {
+        token: {
+          property: 'body',
+          type: false
+        },
         endpoints: {
-          login: { url: 'login', method: 'post', propertyName: 'body' },
-          user: false
+          login: { url: 'login', method: 'post'},
+          user: false,
           // user: { url: 'me', method: 'get', propertyName: 'data' },
-          // logout: false
+          logout: false
         }
       }
     }
