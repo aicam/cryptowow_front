@@ -1,80 +1,120 @@
 <template>
-  <v-card class="text-center d-flex align-center justify-space-around">
-<!--    <WoWTooltip text="hello" ><v-img class="tooltip" src="https://wow.zamimg.com/images/wow/icons/large/inv_hand_1h_mawraid_d_01.jpg" max-width="60px" /></WoWTooltip>-->
-    <a rel="item=28288" class="q3">asd</a>
-    <div class="tooltiptext">Hover me</div>
+  <v-row justify="end" align="center">
+    <v-col md="5">
+      <v-card class="text-center d-flex align-center justify-space-around" style="margin-top: 20px;padding: 20px">
+        <!--    <WoWTooltip text="hello" ><v-img class="tooltip" src="https://wow.zamimg.com/images/wow/icons/large/inv_hand_1h_mawraid_d_01.jpg" max-width="60px" /></WoWTooltip>-->
+        <div>
+          <h1>Heros</h1>
+          <h4 v-if="!heros">You have no heros, go to game with your username and create one</h4>
+          <v-simple-table v-if="heros">
+            <template v-slot:default>
+              <thead>
+              <tr>
+                <th class="text-center">
+                  Class
+                </th>
+                <th class="text-center">
+                  Race
+                </th>
+                <th class="text-center">
+                  Name
+                </th>
+                <th class="text-center">
+                  Level
+                </th>
+                <th class="text-center">
+                  Actions
+                </th>
+              </tr>
+              </thead>
+              <tbody>
+              <tr
+                v-for="(hero, i) in heros"
+                :key="i"
+              >
+                <td>
+                    <v-img class="wow-icons" src="https://wow.zamimg.com/images/wow/icons/large/classicon_mage.jpg"/>
+                </td>
+                <td>
+                    <v-img class="wow_icons" :src="raceImgs[hero.race ? 1 : 0]"/>
+                </td>
+                <td>
+                  {{hero.name}}
+                </td>
+                <td>
+                  {{hero.level}}
+                </td>
+                <td>
+                  <v-btn
+                  @click="heroSelectedName = hero.name"
+                  >
+                    Select
+                  </v-btn>
+                </td>
+              </tr>
+              </tbody>
+            </template>
+          </v-simple-table>
+        </div>
 
-    <v-tooltip bottom>
-      <template v-slot:activator="{ on, attrs }">
-        <v-icon
-          color="primary"
-          dark
-          v-bind="attrs"
-          v-on="on"
+        <!--    <a rel="item=28288">asd</a>-->
+      </v-card>
+    </v-col>
+    <v-col md="3">
+      <v-card class="text-center" style="margin-top: 20px;padding: 30px">
+        <h1>Options</h1>
+        <v-divider></v-divider>
+        <v-btn
+          class="warning"
         >
-          mdi-home
-        </v-icon>
-      </template>
-      <span>Tooltip</span>
-    </v-tooltip>
+          <v-icon>mdi-restore-alert</v-icon>
+          Restore {{heroSelectedName}}</v-btn>
+        <v-divider></v-divider>
+        <v-btn
+          class="success"
+          >
+          <v-icon>mdi-currency-usd</v-icon>
+          Sell {{heroSelectedName}}
+        </v-btn>
 
-    <v-tooltip bottom>
-      <template v-slot:activator="{ on, attrs }">
-        <span
-          v-bind="attrs"
-          v-on="on"
-        >This text has a tooltip</span>
-      </template>
-      <span>Tooltip</span>
-    </v-tooltip>
-  </v-card>
+      </v-card>
+    </v-col>
+  </v-row>
 </template>
 <style>
-  .tooltip {
-    position: relative;
-    display: inline-block;
-    border-bottom: 1px dotted black;
+  .v-btn {
+    text-transform:none !important;
   }
 
-  .tooltiptext {
-    visibility: hidden;
-    width: 120px;
-    background-color: red;
-    color: #fff;
-    text-align: center;
-    border-radius: 6px;
-    padding: 5px 0;
+  .wow_icons {
 
-    /* Position the tooltip */
-    position: absolute;
-    z-index: 1;
-  }
-  .tooltip:hover .tooltiptext {
-    visibility: visible;
   }
 </style>
 <script>
-  import WoWTooltip from "../components/WoWTooltip";
-  export default {
-      head: {
-        script: [{
-            src: 'https://wow.zamimg.com/widgets/power.js'
-        }]
-      },
-      components: {WoWTooltip},
-      data() {
-          return({
-              whTooltips: {colorLinks: true, iconizeLinks: true, renameLinks: true},
-              goldLogo: 'https://wow.zamimg.com/images/icons/money-gold.gif',
-              silverLogo: 'https://wow.zamimg.com/images/icons/money-silver.gif',
-              copperLogo: 'https://wow.zamimg.com/images/icons/money-copper.gif',
-              item_info: {
-                  colors: ['purple', 'yellow', 'white', 'white', 'white', 'white', 'white', 'white', 'white', 'green', 'white', 'white', 'white', 'white'],
-              paragraphs: ['Cruciform Veinripper', 'Item Level 226', 'Binds when picked up', ['One-Hand', 'Fist Weapon'], ['99 - 141 Damage', 'Speed 2.60'],
-              '(46.2 damage per second)', '+41 Agility', '+75 Stamina', 'Durability 80 / 80', '\n' +
-                  'Equip: While you are behind your enemies, their movement is impaired, or they are suffering from loss-of-control effects, your attacks have a high chance to cause them to bleed for 2072 Physical damage over 6 sec.',
-              'Requires Level 60', ['Sell Price: 127', 'G', '61', 'S', '12', 'C'], 'Dropped by: Painsmith Raznal', 'Drop Chance: 0.72%']}
-          })
-      }
-  }
+    export default {
+        middleware: 'auth',
+        head: {
+            script: [{
+                src: 'https://wow.zamimg.com/widgets/power.js'
+            }]
+        },
+        mounted: function () {
+            this.$axios.get("/wow/get_heros").then(response => {
+                this.heros = response.data;
+            });
+            var x = document.getElementsByClassName("wowhead-tooltip wowhead-tooltip-width-restriction wowhead-tooltip-width-320");
+
+            console.log("DDD");
+            // console.log(window.WH);
+        },
+        data() {
+            return ({
+                whTooltips: {colorLinks: true, iconizeLinks: true, renameLinks: true},
+                heros: [],
+                heroSelectedName: "",
+                raceImgs: ['https://wow.zamimg.com/images/wow/icons/large/ui_horde_honorboundmedal.jpg',
+                    'https://wow.zamimg.com/images/wow/icons/large/inv_cape_battlepvps1_d_01_alliance.jpg']
+            })
+        }
+    }
 </script>

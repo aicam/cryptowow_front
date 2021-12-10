@@ -81,7 +81,7 @@ export default {
 
   auth: {
     redirect: {
-      home: '/login_succeed'
+      home: false
     },
     strategies: {
       local: {

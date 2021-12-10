@@ -41,6 +41,7 @@
           ></v-text-field>
 
           <v-btn
+            v-if="!loginStarted"
             :disabled="!valid"
             color="success"
             class="mr-4"
@@ -48,6 +49,13 @@
           >
             Login
           </v-btn>
+          <v-progress-circular
+            v-if="loginStarted"
+            :size="50"
+            color="primary"
+            indeterminate
+          ></v-progress-circular>
+
 
           <v-btn
             color="error"
@@ -66,6 +74,7 @@
     export default {
         name: "login",
         data: () => ({
+            loginStarted: false,
             snackbar: false,
             snacktext: "Enter your username",
             valid: true,
@@ -82,10 +91,22 @@
                     this.snackbar = true;
                     return
                 }
+                this.loginStarted = true;
                 try {
                     let response = await this.$auth.loginWith('local', { data: {
                             username: this.username,
                             password: this.password
+                        }
+                    }).then(response => {
+                        if (response.data.status_code == 1) {
+                            this.snacktext = "Login successful";
+                            this.snackbar = true;
+                            setTimeout(() => {
+                                window.location.href = '/inspire';
+                            }, 3000)
+                        } else {
+                            this.snacktext = "Wrong credentials";
+                            this.snackbar = true
                         }
                     });
                     console.log(response)
