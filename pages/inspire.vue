@@ -1,8 +1,26 @@
 <template>
   <v-row justify="end" align="center">
     <v-col md="3">
-      <v-card style="padding: 5px">
-        <h2>Cryptocurrencies</h2>
+      <v-card style="padding: 25px">
+        <v-row justify="space-around">
+          <v-tooltip bottom max-width="200px">
+            <template v-slot:activator="{on, attrs}">
+              <v-icon v-on="on" v-bind="attrs" large color="blue">mdi-help-circle</v-icon>
+            </template>
+            <p style="color: black;font-size: 15px;font-weight: bold">Here you can find amount of each currencies you have earned. You see the list of available
+            currencies at the moments. We are doing our best to add more currencies as soon as possible.
+            CWT is CryptoWow Token that can be used only in the game and can not be cashed.</p>
+          </v-tooltip>
+          <h2>Cryptocurrencies</h2>
+        </v-row>
+        <v-row
+          v-for="(wallet, i) in wallets"
+          :key="i"
+          justify="space-between"
+        >
+          <h3>{{wallet.currency_id}}</h3>
+          <h3>{{wallet.amount}}</h3>
+        </v-row>
       </v-card>
     </v-col>
     <v-col md="6">
@@ -140,7 +158,19 @@
                     else
                         this.activeGifts.push(item);
                 });
-                console.log(this.usedGifts.length)
+                this.currencies = response.data.currencies;
+                this.wallets = response.data.wallets;
+                let availableCurrencies = [];
+                this.wallets.map(item => {
+                    availableCurrencies.push(item.currency_id)
+                });
+                this.currencies.map(item => {
+                    if (!availableCurrencies.includes(item))
+                        this.wallets.push({
+                            currency_id: item,
+                            amount: 0
+                        })
+                })
             });
             var x = document.getElementsByClassName("wowhead-tooltip wowhead-tooltip-width-restriction wowhead-tooltip-width-320");
 
@@ -154,6 +184,8 @@
                 gifts: [],
                 activeGifts: [],
                 usedGifts: [],
+                currencies: [],
+                wallets: [],
                 heroSelectedName: "",
                 raceImgs: ['https://wow.zamimg.com/images/wow/icons/large/ui_horde_honorboundmedal.jpg',
                     'https://wow.zamimg.com/images/wow/icons/large/inv_cape_battlepvps1_d_01_alliance.jpg']
