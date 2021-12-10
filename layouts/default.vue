@@ -93,9 +93,9 @@
 </style>
 <script>
     export default {
-        computed() {
-            // $colorMode.preference = color
-        },
+        // computed() {
+        //     // $colorMode.preference = color
+        // },
         methods: {
             logoutUser: function () {
                 this.$auth.logout()
