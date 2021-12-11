@@ -56,7 +56,7 @@
             >
               <td>
                 <v-img class="wow-icons" width="60px"
-                       src="https://wow.zamimg.com/images/wow/icons/large/classicon_mage.jpg"/>
+                       :src="heroClasses[hero.class].icon"/>
               </td>
               <td>
                 <v-img class="wow_icons" width="60px" :src="raceImgs[hero.race ? 1 : 0]"/>
@@ -141,6 +141,7 @@
   }
 </style>
 <script>
+  import { heroClasses } from '../components/heroclasses'
     export default {
         middleware: 'auth',
         head: {
@@ -180,6 +181,7 @@
         data() {
             return ({
                 whTooltips: {colorLinks: true, iconizeLinks: true, renameLinks: true},
+                heroClasses: heroClasses,
                 heros: [],
                 gifts: [],
                 activeGifts: [],

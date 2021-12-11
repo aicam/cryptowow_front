@@ -98,7 +98,8 @@
         // },
         methods: {
             logoutUser: function () {
-                this.$auth.logout()
+                this.$auth.logout();
+                window.location.href = '/';
             },
             // isLoggedIn: function () {
             //     console.log('checked ' + this.$auth.loggedIn);
@@ -120,9 +121,9 @@
                     },
                     {
                         icon: 'mdi-chart-bubble',
-                        title: 'Test',
+                        title: 'Dashboard',
                         to: '/inspire',
-                        show: true
+                        show: this.$auth.loggedIn
                     },
                     {
                         icon: 'mdi-account-arrow-left',
