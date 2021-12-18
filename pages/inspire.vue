@@ -32,10 +32,10 @@
           <template v-slot:default>
             <thead>
             <tr>
-              <th class="text-center">
+              <th class="text-left">
                 Class
               </th>
-              <th class="text-center">
+              <th class="text-left">
                 Race
               </th>
               <th class="text-center">
@@ -55,11 +55,12 @@
               :key="i"
             >
               <td>
-                <v-img class="wow-icons" width="60px"
+                <v-img class="wow_icons" width="44px"
                        :src="heroClasses[hero.class].icon"/>
               </td>
               <td>
-                <v-img class="wow_icons" width="60px" :src="raceImgs[hero.race ? 1 : 0]"/>
+                <v-img class="wow_icons" width="44px"
+                       :src="heroRaces[hero.race][hero.gender == true ? 1 : 0]"/>
               </td>
               <td>
                 {{hero.name}}
@@ -137,11 +138,11 @@
   }
 
   .wow_icons {
-
+    border: 1px solid #F5F5F5;
   }
 </style>
 <script>
-  import { heroClasses } from '../components/heroclasses'
+  import { wowDicts } from '../components/wowDicts'
     export default {
         middleware: 'auth',
         head: {
@@ -181,7 +182,8 @@
         data() {
             return ({
                 whTooltips: {colorLinks: true, iconizeLinks: true, renameLinks: true},
-                heroClasses: heroClasses,
+                heroClasses: wowDicts.heroClasses,
+                heroRaces: wowDicts.heroRaces,
                 heros: [],
                 gifts: [],
                 activeGifts: [],
