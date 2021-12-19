@@ -20,7 +20,7 @@
           </v-btn>
           <v-toolbar-title>Hero Full Inspection</v-toolbar-title>
         </v-toolbar>
-        <v-subheader>{{ heroName }}</v-subheader>
+        <v-subheader class="text-center justify-center" style="font-size: 40px; font-weight: bold; font-family: 'DejaVu Math TeX Gyre',fantasy;">{{ heroName }}</v-subheader>
         <v-sheet
           v-if="loading"
           class="pa-3"
@@ -50,7 +50,7 @@
         </v-sheet>
         <v-row v-if="!loading" class="flex" justify="start">
           <span class="bg" :style="{background: 'url(\'' + backgroundImage + '\')'}"></span>
-          <v-col lg="4">
+          <v-col lg="3">
             <v-list flat>
               <v-list-item-group
                 v-model="selectedMenu"
@@ -66,12 +66,75 @@
               </v-list-item-group>
             </v-list>
           </v-col>
-          <v-col lg="8" class="justify-center">
+          <v-col lg="9" class="justify-center">
             <v-stepper v-model="selectedMenu" non-linear style="background: transparent;">
               <v-stepper-items>
                 <v-stepper-content step="0">
                   <v-row>
-                    <h1>adas</h1>
+                    <v-col lg="4">
+                      <v-list flat style="background: transparent;">
+                        <v-list-item-group>
+                          <v-list-item v-for="(item, i) in leftItems"
+                                       :key="i"
+                                       style="padding: 0; margin-bottom: -26px;">
+                              <v-list-item-icon>
+                                <a href="#" :data-wowhead="`item=${item.id}`">
+                                <v-img style="border: 1px solid orange;" width="44px" :src="item.icon"/>
+                                </a>
+                              </v-list-item-icon>
+                              <v-list-item-content>
+                                <a href="#" :data-wowhead="`item=${item.id}`">
+                                <p style="font-size: 12px; color: white;">{{item.name}}</p>
+                                </a>
+                              </v-list-item-content>
+                          </v-list-item>
+                        </v-list-item-group>
+                      </v-list>
+                    </v-col>
+
+                    <!-- Staff, Sword, ... -->
+                    <v-col lg="4" style="margin-top: 45%">
+                      <v-list flat style="background: transparent;">
+                        <v-list-item-group>
+                          <v-list-item v-for="(item, i) in bottomItems"
+                                       :key="i"
+                                       style="padding: 0; margin-bottom: -26px;">
+                            <v-list-item-icon>
+                              <a href="#" :data-wowhead="`item=${item.id}`">
+                                <v-img style="border: 1px solid orange;" width="44px" :src="item.icon"/>
+                              </a>
+                            </v-list-item-icon>
+                            <v-list-item-content>
+                              <a href="#" :data-wowhead="`item=${item.id}`">
+                                <p style="font-size: 12px; color: white;">{{item.name}}</p>
+                              </a>
+                            </v-list-item-content>
+                          </v-list-item>
+                        </v-list-item-group>
+                      </v-list>
+                    </v-col>
+
+                    <!-- Right items -->
+                    <v-col lg="4">
+                      <v-list flat style="background: transparent;">
+                        <v-list-item-group>
+                          <v-list-item v-for="(item, i) in rightItems"
+                                       :key="i"
+                                       style="padding: 0; margin-bottom: -26px;">
+                            <v-list-item-content class="justify-lg-end text-end">
+                              <a href="#" :data-wowhead="`item=${item.id}`">
+                                <p style="font-size: 12px; color: white;" class="text-end">{{item.name}}</p>
+                              </a>
+                            </v-list-item-content>
+                            <v-list-item-icon>
+                              <a href="#" :data-wowhead="`item=${item.id}`">
+                                <v-img style="border: 1px solid orange;" width="44px" :src="item.icon"/>
+                              </a>
+                            </v-list-item-icon>
+                          </v-list-item>
+                        </v-list-item-group>
+                      </v-list>
+                    </v-col>
                   </v-row>
                 </v-stepper-content>
               </v-stepper-items>
@@ -88,6 +151,11 @@
         middleware: 'auth',
         name: "HeroDialog",
         props: ["dialog", "heroName", "closeFunc"],
+        head: {
+            script: [{
+                src: 'https://wow.zamimg.com/widgets/power.js'
+            }]
+        },
         watch: {
             dialog(visible) {
                 if (visible) {
@@ -115,27 +183,36 @@
                                 redirect: 'follow',
                             };
                             let iteminfo = {};
+                            const storageInfo = localStorage.getItem(itemID);
+                            // Cache system
+                            if (storageInfo !== null) {
+                                return JSON.parse(storageInfo);
+                            }
                             await fetch("http://localhost:44297/https://www.wowhead.com/item=" + itemID + "&xml", requestOptions)
                                 .then(response => response.text())
                                 .then(result => {
                                     // console.log(result);
                                     const parser = new DOMParser();
-                                    let xmlDoc = parser.parseFromString(result,"text/xml");
+                                    let xmlDoc = parser.parseFromString(result, "text/xml");
+                                    iteminfo.id = itemID;
                                     iteminfo.name = xmlDoc.getElementsByTagName("name")[0].innerHTML
                                         .replaceAll("<![CDATA[", "")
                                         .replaceAll("]]>", "");
                                     iteminfo.level = xmlDoc.getElementsByTagName("level")[0].innerHTML;
-                                    iteminfo.icon = 'https://wow.zamimg.com/images/wow/icons/large/' + xmlDoc.getElementsByTagName("icon")[0].innerHTML;
+                                    iteminfo.icon = 'https://wow.zamimg.com/images/wow/icons/large/' + xmlDoc.getElementsByTagName("icon")[0].innerHTML + '.jpg';
+
+                                    // Cache system
+                                    localStorage.setItem(itemID, JSON.stringify(iteminfo))
                                 })
                                 .catch(error => console.log('error', error));
                             return iteminfo
                         };
-                        // for (let i = 0; i < 8; i++) {
-                        //     let r1 = await parseItemId(this.items[i]);
-                        //     this.leftItems.push(r1);
-                        //     let r2 = await parseItemId(this.items[i + 8]);
-                        //     this.rightItems.push(r2);
-                        // }
+                        for (let i = 0; i < 8; i++) {
+                            let r1 = await parseItemId(this.items[i]);
+                            this.leftItems.push(r1);
+                            let r2 = await parseItemId(this.items[i + 8]);
+                            this.rightItems.push(r2);
+                        }
                         for (let i = 15; i < 19; i++) {
                             if (this.items[i] != "0") {
                                 console.log(this.items[i]);
@@ -143,12 +220,11 @@
                                 this.bottomItems.push(r3)
                             }
                         }
-                        console.log(this.bottomItems);
-                        console.log(this.leftItems);
-                        console.log(this.rightItems);
-                        console.log(this.items);
+                        console.log(this.leftItems[0].icon);
                         this.loading = false;
                     })
+                } else {
+                    Object.assign(this.$data, this.$options.data())
                 }
             }
         },
@@ -172,7 +248,7 @@
                 rightItems: [],
                 bottomItems: [],
                 selectedMenu: 0,
-                menuItems: ["Hero Equipments", "Achievements", "Reputation", "Mounts", "Pets"],
+                menuItems: ["Equipments", "Achievements", "Reputation", "Mounts", "Pets"],
                 backgroundImage: "",
                 loading: true,
                 notifications: false,
