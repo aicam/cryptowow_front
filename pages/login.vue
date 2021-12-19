@@ -105,12 +105,14 @@
                                 window.location.href = '/inspire';
                             }, 3000)
                         } else {
-                            this.snacktext = "Wrong credentials";
-                            this.snackbar = true
+                            this.snacktext = response.data.body;
+                            this.snackbar = true;
+                            this.loginStarted = false;
                         }
                     });
                     console.log(response)
                 } catch (e) {
+                    this.loginStarted = false;
                     console.log(e)
                 }
             },

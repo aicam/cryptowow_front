@@ -1,5 +1,6 @@
 <template>
   <v-row justify="end" align="center">
+    <HeroDialog :dialog="dialog" :hero-name="inpsectingHeroName" v-on:close-func="closeHeroDialog"/>
     <v-col md="3">
       <v-card style="padding: 25px">
         <v-row justify="space-around">
@@ -71,8 +72,15 @@
               <td>
                 <v-btn
                   @click="heroSelectedName = hero.name"
+                  small
                 >
                   Select
+                </v-btn>
+                <v-btn
+                  @click="() => {inpsectingHeroName = hero.name; dialog = true;}"
+                  small
+                >
+                  Inspect
                 </v-btn>
               </td>
             </tr>
@@ -143,12 +151,19 @@
 </style>
 <script>
   import { wowDicts } from '../components/wowDicts'
+  import HeroDialog from "../components/HeroDialog";
     export default {
+        components: {HeroDialog},
         middleware: 'auth',
         head: {
             script: [{
                 src: 'https://wow.zamimg.com/widgets/power.js'
             }]
+        },
+        methods: {
+            closeHeroDialog: function () {
+                this.dialog = false;
+            }
         },
         mounted: function () {
             this.$axios.get("/wow/get_info").then(response => {
@@ -181,6 +196,8 @@
         },
         data() {
             return ({
+                dialog: false,
+                inpsectingHeroName: "",
                 whTooltips: {colorLinks: true, iconizeLinks: true, renameLinks: true},
                 heroClasses: wowDicts.heroClasses,
                 heroRaces: wowDicts.heroRaces,
