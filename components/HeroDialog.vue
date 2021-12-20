@@ -68,7 +68,7 @@
                 <v-list-item
                   v-for="(item, i) in menuItems"
                   :key="i">
-                  <v-list-item-content>
+                  <v-list-item-content @click="changeMenu(i)">
                     {{item}}
                   </v-list-item-content>
                 </v-list-item>
@@ -151,9 +151,11 @@
 
                 <!-- Achievements Section -->
                 <v-stepper-content step="1">
-                  <v-card>
+                  <v-card style="padding: 25px; background: transparent;">
+                    <h1 class="text-center" style="font-weight: bold;">Number of achievements:
+                      {{achievements.length}}</h1>
                     <v-sheet
-                      v-if="achievementLoading"
+                      v-if="!achievements.length"
                       class="pa-3"
                     >
                       <v-skeleton-loader
@@ -161,24 +163,46 @@
                         type="card"
                       ></v-skeleton-loader>
                     </v-sheet>
-                    <v-virtual-scroll v-if="!achievementLoading"
+                    <v-virtual-scroll v-if="achievements.length"
                                       :items="achievements"
-                                      height="300"
-                                      item-height="100"
+                                      height="500"
+                                      item-height="80"
                     >
                       <template v-slot:default="{item}">
                         <v-list-item :key="item.id">
                           <v-list-item-content>
-                            <v-list-item-title>
-                              {{item.name}}
+                            <v-list-item-title style="color: orange;">
+                              Name: {{item.name}}
                             </v-list-item-title>
-                            {{item.description}}
+                            Description: {{item.description}}
                           </v-list-item-content>
                         </v-list-item>
                       </template>
                     </v-virtual-scroll>
                   </v-card>
                 </v-stepper-content>
+
+                <!-- Reputation section -->
+                <v-stepper-content step="2">
+                  <h2>Wrath of The Lich King</h2>
+                  <v-card style="padding: 25px; background: transparent;" >
+                    <v-row
+                      v-for="(rep, i) in reputations"
+                      :key="rep.name">
+                      {{rep.name}}
+                      <v-progress-linear
+                        v-model="rep.standing"
+                        :color="horde ? '#AC2020' : 'blue-grey'"
+                        height="25"
+                      >
+                        <template v-slot:default="{ value }">
+                          <strong>{{ value }}/{{ rep.max }}</strong>
+                        </template>
+                      </v-progress-linear>
+                    </v-row>
+                  </v-card>
+                </v-stepper-content>
+
               </v-stepper-items>
             </v-stepper>
           </v-col>
@@ -213,15 +237,30 @@
                         this.level = respData.level;
                         this.heroClass = respData.class;
                         this.equippedCache = respData.equipment_cache;
-                        this.achievements = respData.achievements;
+                        this.achievementsIDs = respData.achievements;
                         const eqsplitted = this.equippedCache.split(" ");
+
+                        // Reputation array
+                        this.wotlkReputations.map(item => {
+                            let standing = 0;
+                            respData.reputations.map(rep => {
+                                if (rep.faction == item.id)
+                                    standing = rep.standing
+                            });
+                            this.reputations.push({name: item.name, standing: standing, max: item.max});
+                        });
+
                         for (let i = 0; i < eqsplitted.length; i += 2) {
                             this.items.push(eqsplitted[i])
                         }
-                        if (this.race == 2 || this.race == 5 || this.race == 6 || this.race == 10 || this.race == 8)
+                        if (this.race == 2 || this.race == 5 || this.race == 6 || this.race == 10 || this.race == 8) {
                             this.backgroundImage = require("~/static/hero_dialogs/orgrimmar_blur.png");
-                        else
+                            this.horde = true;
+                        }
+                        else {
                             this.backgroundImage = require("~/static/hero_dialogs/stormwind_blur.png");
+                            this.horde = false;
+                        }
 
                         // parse items
                         const parseItemId = async (itemID) => {
@@ -235,6 +274,7 @@
                                 iteminfo.name = "No item";
                                 iteminfo.id = "0";
                                 iteminfo.level = "0";
+                                return iteminfo;
                             }
                             const storageInfo = localStorage.getItem(itemID);
                             // Cache system
@@ -291,7 +331,7 @@
                 this.$emit("close-func")
             },
             async changeMenu(step) {
-                this.selectedMenu = step;
+                this.selectedMenu = step.toString();
                 if (step == 1) {
                     this.achievementLoading = true;
                     // Parse achievements
@@ -301,20 +341,29 @@
                             redirect: 'follow',
                         };
                         let aInfo = {};
+
+                        const storageInfo = localStorage.getItem(aID + 'a');
+                        // Cache system
+                        if (storageInfo !== null) {
+                            return JSON.parse(storageInfo);
+                        }
                         await fetch("http://localhost:44297/https://www.wowhead.com/achievement=" + aID, requestOptions)
                             .then(response => response.text())
                             .then(result => {
                                 const rigidInfo = JSON.parse(result.split('<script type="application/ld+json">')[1].split("<\/script>")[0]);
                                 aInfo.id = aID;
                                 aInfo.name = rigidInfo.name;
-                                aInfo.description = rigidInfo.description;
-                                console.log(rigidInfo);
+                                aInfo.description = rigidInfo.description.replace('In the Character Achievements category. Always up to date with the latest patch (9.1.5).', '')
+                                    .replace('Always up to date with the latest patch (9.1.5).', '');
+
+                                // cache system
+                                localStorage.setItem(aID + 'a', JSON.stringify(aInfo))
                             });
                         return aInfo
                     };
-                    for (let i = 0; i < this.achievements.length; i++) {
-                        this.achievements[i] = await parseAchievementID(this.achievements[i])
-                    }
+                    if (this.achievements.length == 0)
+                        for (let i = 0; i < this.achievementsIDs.length; i++)
+                            this.achievements.push(await parseAchievementID(this.achievementsIDs[i]));
                     this.achievementLoading = false;
                 }
             }
@@ -327,11 +376,14 @@
                 level: 0,
                 heroClass: 0,
                 equippedCache: "",
+                horde: false,
                 items: [],
                 leftItems: [],
                 rightItems: [],
                 bottomItems: [],
+                achievementsIDs: [],
                 achievements: [],
+                reputations: [],
                 selectedMenu: 0,
                 menuItems: ["Equipments", "Achievements", "Reputation", "Mounts", "Pets"],
                 backgroundImage: "",
@@ -341,6 +393,7 @@
                 widgets: false,
                 heroClasses: wowDicts.heroClasses,
                 heroRaces: wowDicts.heroRaces,
+                wotlkReputations: wowDicts.wotlkReputations,
                 achievementLoading: true,
             }
         },

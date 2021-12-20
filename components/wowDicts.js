@@ -74,5 +74,15 @@ export const wowDicts = {
       0: "https://wow.zamimg.com/images/wow/icons/large/race_draenei_male.jpg",
       1: "https://wow.zamimg.com/images/wow/icons/large/race_draenei_female.jpg"
     }
-  }
+  },
+  wotlkReputations: [
+    {name: "Argent Crusade", id: 1106, max: 3000},
+    {name: "Horde Expedition", id: 1052, max: 36000},
+    {name: "Kirin Tor", id: 1090, max: 3000},
+    {name: "Knights of the Ebon Blade", id: 1098, max: 3000},
+    {name: "The Ashen Verdict", id: 1156, max: 3000},
+    {name: "The Kalu'ak", id: 1073, max: 3000},
+    {name: "The Sons of Hodir", id: 1119, max: 36000},
+    {name: "The Wyrmrest Accord", id: 1091, max: 3000}
+  ]
 };
