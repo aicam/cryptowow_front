@@ -185,7 +185,7 @@
                 <!-- Reputation section -->
                 <v-stepper-content step="2">
                   <h2>Wrath of The Lich King</h2>
-                  <v-card style="padding: 25px; background: transparent;" >
+                  <v-card style="padding: 25px; background: transparent;">
                     <v-row
                       v-for="(rep, i) in reputations"
                       :key="rep.name">
@@ -199,6 +199,68 @@
                           <strong>{{ value }}/{{ rep.max }}</strong>
                         </template>
                       </v-progress-linear>
+                    </v-row>
+                  </v-card>
+                </v-stepper-content>
+
+                <!-- Mounts section -->
+                <v-stepper-content step="3">
+                  <v-card style="padding: 25px; background: transparent;">
+                    <v-sheet
+                      v-if="mountsLoading"
+                      class="pa-3"
+                    >
+                      <v-skeleton-loader
+                        class="mx-auto"
+                        type="card"
+                      ></v-skeleton-loader>
+                    </v-sheet>
+                    <v-row style="max-width: 600px;">
+                      <v-col
+                        style="margin: 5px;"
+                        lg="3"
+                        v-for="(mount, i) in mountsData"
+                        :key="i">
+                        <v-row>
+                          <a :href="`https://www.wowhead.com/item=${mount.id}`" style="border: 2px solid #7F828B" :data-wowhead="`item=${mount.id}`" target="_blank">
+                            <v-img :src="mount.icon"/>
+                          </a>
+                          <a :href="`https://www.wowhead.com/item=${mount.id}`" style="font-weight: bold;color: white;" :data-wowhead="`item=${mount.id}`" target="_blank">
+                            {{mount.name}}
+                          </a>
+                        </v-row>
+                      </v-col>
+                    </v-row>
+                  </v-card>
+                </v-stepper-content>
+
+                <!-- Companions section -->
+                <v-stepper-content step="4">
+                  <v-card style="padding: 25px; background: transparent;">
+                    <v-sheet
+                      v-if="companionsLoading"
+                      class="pa-3"
+                    >
+                      <v-skeleton-loader
+                        class="mx-auto"
+                        type="card"
+                      ></v-skeleton-loader>
+                    </v-sheet>
+                    <v-row style="max-width: 600px;">
+                      <v-col
+                        style="margin: 5px;"
+                        lg="3"
+                        v-for="(companion, i) in companionsData"
+                        :key="i">
+                        <v-row>
+                          <a :href="`https://www.wowhead.com/item=${companion.id}`" style="border: 2px solid #7F828B" :data-wowhead="`item=${companion.id}`" target="_blank">
+                            <v-img :src="companion.icon"/>
+                          </a>
+                          <a :href="`https://www.wowhead.com/item=${companion.id}`" style="font-weight: bold;color: white;" :data-wowhead="`item=${companion.id}`" target="_blank">
+                            {{companion.name}}
+                          </a>
+                        </v-row>
+                      </v-col>
                     </v-row>
                   </v-card>
                 </v-stepper-content>
@@ -238,6 +300,8 @@
                         this.heroClass = respData.class;
                         this.equippedCache = respData.equipment_cache;
                         this.achievementsIDs = respData.achievements;
+                        this.mounts = respData.mounts;
+                        this.companions = respData.companions;
                         const eqsplitted = this.equippedCache.split(" ");
 
                         // Reputation array
@@ -256,62 +320,22 @@
                         if (this.race == 2 || this.race == 5 || this.race == 6 || this.race == 10 || this.race == 8) {
                             this.backgroundImage = require("~/static/hero_dialogs/orgrimmar_blur.png");
                             this.horde = true;
-                        }
-                        else {
+                        } else {
                             this.backgroundImage = require("~/static/hero_dialogs/stormwind_blur.png");
                             this.horde = false;
                         }
 
                         // parse items
-                        const parseItemId = async (itemID) => {
-                            var requestOptions = {
-                                method: 'GET',
-                                redirect: 'follow',
-                            };
-                            let iteminfo = {};
-                            if (itemID == "0") {
-                                iteminfo.icon = "https://wow.zamimg.com/images/wow/icons/large/inv_misc_questionmark.jpg"
-                                iteminfo.name = "No item";
-                                iteminfo.id = "0";
-                                iteminfo.level = "0";
-                                return iteminfo;
-                            }
-                            const storageInfo = localStorage.getItem(itemID);
-                            // Cache system
-                            if (storageInfo !== null) {
-                                return JSON.parse(storageInfo);
-                            }
-                            await fetch("http://localhost:44297/https://www.wowhead.com/item=" + itemID + "&xml", requestOptions)
-                                .then(response => response.text())
-                                .then(result => {
-                                    // console.log(result);
-                                    const parser = new DOMParser();
-                                    let xmlDoc = parser.parseFromString(result, "text/xml");
-                                    iteminfo.id = itemID;
-                                    iteminfo.name = xmlDoc.getElementsByTagName("name")[0].innerHTML
-                                        .replaceAll("<![CDATA[", "")
-                                        .replaceAll("]]>", "");
-                                    iteminfo.level = xmlDoc.getElementsByTagName("level")[0].innerHTML;
-                                    iteminfo.icon = 'https://wow.zamimg.com/images/wow/icons/large/' + xmlDoc.getElementsByTagName("icon")[0].innerHTML + '.jpg';
-
-                                    // Cache system
-                                    localStorage.setItem(itemID, JSON.stringify(iteminfo))
-                                })
-                                .catch(error => console.log('error', error));
-                            return iteminfo
-                        };
-
-
                         for (let i = 0; i < 8; i++) {
-                            let r1 = await parseItemId(this.items[i]);
+                            let r1 = await this.parseItemId(this.items[i]);
                             this.leftItems.push(r1);
-                            let r2 = await parseItemId(this.items[i + 8]);
+                            let r2 = await this.parseItemId(this.items[i + 8]);
                             this.rightItems.push(r2);
                         }
                         for (let i = 15; i < 19; i++) {
                             if (this.items[i] != "0") {
                                 console.log(this.items[i]);
-                                let r3 = await parseItemId(this.items[i]);
+                                let r3 = await this.parseItemId(this.items[i]);
                                 this.bottomItems.push(r3)
                             }
                         }
@@ -327,6 +351,43 @@
         mounted() {
         },
         methods: {
+            parseItemId: async (itemID) => {
+                var requestOptions = {
+                    method: 'GET',
+                    redirect: 'follow',
+                };
+                let iteminfo = {};
+                if (itemID == "0") {
+                    iteminfo.icon = "https://wow.zamimg.com/images/wow/icons/large/inv_misc_questionmark.jpg"
+                    iteminfo.name = "No item";
+                    iteminfo.id = "0";
+                    iteminfo.level = "0";
+                    return iteminfo;
+                }
+                const storageInfo = localStorage.getItem(itemID);
+                // Cache system
+                if (storageInfo !== null) {
+                    return JSON.parse(storageInfo);
+                }
+                await fetch("http://localhost:44297/https://www.wowhead.com/item=" + itemID + "&xml", requestOptions)
+                    .then(response => response.text())
+                    .then(result => {
+                        // console.log(result);
+                        const parser = new DOMParser();
+                        let xmlDoc = parser.parseFromString(result, "text/xml");
+                        iteminfo.id = itemID;
+                        iteminfo.name = xmlDoc.getElementsByTagName("name")[0].innerHTML
+                            .replaceAll("<![CDATA[", "")
+                            .replaceAll("]]>", "");
+                        iteminfo.level = xmlDoc.getElementsByTagName("level")[0].innerHTML;
+                        iteminfo.icon = 'https://wow.zamimg.com/images/wow/icons/large/' + xmlDoc.getElementsByTagName("icon")[0].innerHTML + '.jpg';
+
+                        // Cache system
+                        localStorage.setItem(itemID, JSON.stringify(iteminfo))
+                    })
+                    .catch(error => console.log('error', error));
+                return iteminfo
+            },
             closeDialog() {
                 this.$emit("close-func")
             },
@@ -366,6 +427,32 @@
                             this.achievements.push(await parseAchievementID(this.achievementsIDs[i]));
                     this.achievementLoading = false;
                 }
+
+                if (step == 3) {
+                    if (this.mountsData.length > 0) {
+                        this.mountsLoading = false;
+                        return
+                    }
+                    this.mountsLoading = true;
+                    this.mounts.map(async (item) => {
+                        let itemInfo = await this.parseItemId(item.id);
+                        this.mountsData.push(itemInfo);
+                    });
+                    this.mountsLoading = false;
+                }
+
+                if (step == 4) {
+                    if (this.companionsData.length > 0) {
+                        this.companionsLoading = false;
+                        return
+                    }
+                    this.companionsLoading = true;
+                    this.companions.map(async (item) => {
+                        let itemInfo = await this.parseItemId(item);
+                        this.companionsData.push(itemInfo);
+                    });
+                    this.companionsLoading = false;
+                }
             }
         },
         data() {
@@ -395,6 +482,12 @@
                 heroRaces: wowDicts.heroRaces,
                 wotlkReputations: wowDicts.wotlkReputations,
                 achievementLoading: true,
+                mounts: [],
+                mountsData: [],
+                mountsLoading: true,
+                companions: [],
+                companionsData: [],
+                companionsLoading: true
             }
         },
     }
