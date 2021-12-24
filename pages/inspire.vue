@@ -1,5 +1,58 @@
 <template>
   <v-row justify="end" align="center">
+
+    <!-- None display -->
+    <v-dialog
+      v-model="sellingDialog"
+      width="1000">
+      <v-card style="padding: 50px;">
+        <v-card-title style="margin-bottom: 10px;" class="text-h2 lighten-1">
+          Selling {{heroSelectedName}}
+        </v-card-title>
+        <h4>Add new price based on available cryptocurrencies</h4>
+        <v-row justify="space-between">
+          <v-col lg="4">
+            <v-text-field
+              label="Price"></v-text-field>
+          </v-col>
+          <v-col lg="4">
+            <v-select :items="currencies">
+              <template v-slot:selection="{item, index}">
+                {{item}}
+                <v-divider></v-divider>
+                <v-img max-width="48px" :src="require(`~/static/currencies/${item}.png`)"/>
+              </template>
+              <template v-slot:item="{item}">
+                {{item}}
+                <v-divider></v-divider>
+                <v-img max-width="48px" :src="require(`~/static/currencies/${item}.png`)"/>
+              </template>
+            </v-select>
+          </v-col>
+          <v-col lg="4">
+            <v-btn>
+              Add
+            </v-btn>
+          </v-col>
+        </v-row>
+      </v-card>
+    </v-dialog>
+    <v-snackbar
+      v-model="snackbar">
+      {{snackbarText}}
+      <template v-slot:action="{ attrs }">
+        <v-btn
+          color="red"
+          text
+          v-bind="attrs"
+          @click="snackbar = false"
+        >
+          Close
+        </v-btn>
+      </template>
+    </v-snackbar>
+
+
     <HeroDialog :dialog="dialog" :hero-name="inpsectingHeroName" v-on:close-func="closeHeroDialog"/>
     <v-col md="3">
       <v-card style="padding: 25px">
@@ -8,9 +61,10 @@
             <template v-slot:activator="{on, attrs}">
               <v-icon v-on="on" v-bind="attrs" large color="blue">mdi-help-circle</v-icon>
             </template>
-            <p style="color: black;font-size: 15px;font-weight: bold">Here you can find amount of each currencies you have earned. You see the list of available
-            currencies at the moments. We are doing our best to add more currencies as soon as possible.
-            CWT is CryptoWow Token that can be used only in the game and can not be cashed.</p>
+            <p style="color: black;font-size: 15px;font-weight: bold">Here you can find amount of each currencies you
+              have earned. You see the list of available
+              currencies at the moments. We are doing our best to add more currencies as soon as possible.
+              CWT is CryptoWow Token that can be used only in the game and can not be cashed.</p>
           </v-tooltip>
           <h2>Cryptocurrencies</h2>
         </v-row>
@@ -114,6 +168,7 @@
         <v-divider></v-divider>
         <v-btn
           class="warning"
+          @click="restoreHero"
         >
           <v-icon>mdi-restore-alert</v-icon>
           Restore {{heroSelectedName}}
@@ -121,6 +176,7 @@
         <v-divider></v-divider>
         <v-btn
           class="success"
+          @click="sellHero"
         >
           <v-icon>mdi-currency-usd</v-icon>
           Sell {{heroSelectedName}}
@@ -150,8 +206,9 @@
   }
 </style>
 <script>
-  import { wowDicts } from '../components/wowDicts'
-  import HeroDialog from "../components/HeroDialog";
+    import {wowDicts} from '../components/wowDicts'
+    import HeroDialog from "../components/HeroDialog";
+
     export default {
         components: {HeroDialog},
         middleware: 'auth',
@@ -163,6 +220,20 @@
         methods: {
             closeHeroDialog: function () {
                 this.dialog = false;
+            },
+            restoreHero: () => {
+                if (heroSelectedName === "") {
+                    this.snackbarText = "Please select a hero first!";
+                    this.snackbar = true;
+                    return
+                }
+                this.$axios.get("/wow/restore_hero/" + this.heroSelectedName).then(response => {
+                    this.snackbarText = response.data.body;
+                    this.snackbar = true;
+                })
+            },
+            sellHero: function () {
+                this.sellingDialog = true;
             }
         },
         mounted: function () {
@@ -209,7 +280,14 @@
                 wallets: [],
                 heroSelectedName: "",
                 raceImgs: ['https://wow.zamimg.com/images/wow/icons/large/ui_horde_honorboundmedal.jpg',
-                    'https://wow.zamimg.com/images/wow/icons/large/inv_cape_battlepvps1_d_01_alliance.jpg']
+                    'https://wow.zamimg.com/images/wow/icons/large/inv_cape_battlepvps1_d_01_alliance.jpg'],
+                snackbar: false,
+                snackbarText: "",
+                sellingDialog: false,
+                prices: [],
+                newPrice: "",
+                newCrypto: "",
+                note: ""
             })
         }
     }
