@@ -301,7 +301,7 @@
                         this.equippedCache = respData.equipment_cache;
                         this.achievementsIDs = respData.achievements;
                         this.mounts = respData.mounts;
-                        this.companions = respData.companions;
+                        this.companions = respData.pets;
                         const eqsplitted = this.equippedCache.split(" ");
 
                         // Reputation array
