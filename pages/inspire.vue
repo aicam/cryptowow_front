@@ -35,13 +35,13 @@
               </v-col>
               <v-col lg="4">
                 <v-btn
-                @click="addPrice"
+                  @click="addPrice"
                 >
                   Add
                 </v-btn>
               </v-col>
             </v-row>
-            <v-row v-for="(price, i) in prices" :key="i" >
+            <v-row v-for="(price, i) in prices" :key="i">
               <v-col lg="3" class="justify-center text-center">
                 <h4>{{price.value}}</h4>
               </v-col>
@@ -49,7 +49,7 @@
                 <h4>{{price.name}}</h4>
               </v-col>
               <v-col lg="2">
-                <v-img max-width="48" :src="require(`~/static/currencies/${price.name}.png`)" />
+                <v-img max-width="48" :src="require(`~/static/currencies/${price.name}.png`)"/>
               </v-col>
               <v-col lg="2">
                 <v-btn
@@ -64,8 +64,9 @@
 
           <v-stepper-content step="1">
             <h4>Write a note about your hero to justify its price and value (less than 300 characters).</h4>
-            <h4>Your hero information same as the "inspect" option for your hero will be available for shopper, in addition, hero gold, total kill and your note
-            will be added to this information.</h4>
+            <h4>Your hero information same as the "inspect" option for your hero will be available for shopper, in
+              addition, hero gold, total kill and your note
+              will be added to this information.</h4>
             <v-textarea
               filled
               name="input-7-1"
@@ -177,7 +178,12 @@
                 <v-img class="wow_icons" width="44px"
                        :src="heroRaces[hero.race][hero.gender == true ? 1 : 0]"/>
               </td>
-              <td>
+              <td :style="{'color': currentSellingHeros.includes(hero.name) ? 'green': 'white'}">
+                <v-icon
+                  color="green"
+                  v-if="currentSellingHeros.includes(hero.name)">
+                  mdi-currency-usd
+                </v-icon>
                 {{hero.name}}
               </td>
               <td>
@@ -241,6 +247,14 @@
           <v-icon>mdi-currency-usd</v-icon>
           Sell {{heroSelectedName}}
         </v-btn>
+        <v-divider></v-divider>
+        <v-btn
+          class="success"
+          @click="cancelSellingHero"
+        >
+          <v-icon>mdi-currency-usd-off</v-icon>
+          Cancel Selling {{heroSelectedName}}
+        </v-btn>
         <v-row justify="center" style="margin: 10px">
           <v-icon>mdi-gift-outline</v-icon>
           <h1 style="margin-left: 10px;"> Gifts</h1>
@@ -281,7 +295,7 @@
             closeHeroDialog: function () {
                 this.dialog = false;
             },
-            restoreHero: function() {
+            restoreHero: function () {
                 if (this.heroSelectedName === "") {
                     this.snackbarText = "Please select a hero first!";
                     this.snackbar = true;
@@ -295,17 +309,17 @@
             sellHero: function () {
                 this.sellingDialog = true;
             },
-            addPrice: function() {
+            addPrice: function () {
                 let exist = false;
                 this.prices.map(price => {
-                   if (price.name === this.cCrypto) {
-                       this.snackbarText = "Pick another currency or delete the existing one";
-                       this.snackbar = true;
-                       exist = true;
-                   }
+                    if (price.name === this.cCrypto) {
+                        this.snackbarText = "Pick another currency or delete the existing one";
+                        this.snackbar = true;
+                        exist = true;
+                    }
                 });
                 if (!exist)
-                  this.prices.push({value: this.cPrice, name: this.cCrypto});
+                    this.prices.push({value: this.cPrice, name: this.cCrypto});
             },
             goNoteStep: function () {
                 if (this.prices.length < this.currencies.length) {
@@ -326,12 +340,35 @@
                     priceTxT += price.value + '-' + price.name + '&'
                 });
                 priceTxT = priceTxT.substring(0, priceTxT.length - 1);
-                this.$axios.post("/wow/sell_hero", JSON.stringify({hero_name: this.heroSelectedName, hero_price: priceTxT, note: this.note}))
+                this.$axios.post("/wow/sell_hero", JSON.stringify({
+                    hero_name: this.heroSelectedName,
+                    hero_price: priceTxT,
+                    note: this.note
+                }))
                     .then(response => {
                         this.sellingDialog = false;
                         this.snackbarText = response.data.body;
                         this.snackbar = true;
+                        if (response.data.status === 1) {
+                            this.currentSellingHeros.push(this.heroSelectedName);
+                        }
                     });
+            },
+            cancelSellingHero: function () {
+                if (!this.currentSellingHeros.includes(this.heroSelectedName)) {
+                    this.snackbarText = "Hero is not for sale already!!";
+                    this.snackbar = true;
+                    return
+                }
+                this.$axios.get("/wow/cancel_selling_hero/" + this.heroSelectedName).then(response => {
+                    this.snackbarText = response.data.body;
+                    this.snackbar = true;
+                    if (response.data.status === 1) {
+                        this.currentSellingHeros = this.currentSellingHeros.filter(obj => {
+                            return obj !== this.heroSelectedName;
+                        })
+                    }
+                });
             }
         },
         mounted: function () {
@@ -356,6 +393,9 @@
                             currency_id: item,
                             amount: 0
                         })
+                });
+                response.data.selling_heros.map(item => {
+                    this.currentSellingHeros.push(item.hero_name);
                 })
             });
             var x = document.getElementsByClassName("wowhead-tooltip wowhead-tooltip-width-restriction wowhead-tooltip-width-320");
@@ -388,7 +428,8 @@
                 newPrice: "",
                 newCrypto: "",
                 note: "",
-                sellingSteps: 0
+                sellingSteps: 0,
+                currentSellingHeros: []
             })
         }
     }
