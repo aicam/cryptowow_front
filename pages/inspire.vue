@@ -372,35 +372,30 @@
             }
         },
         mounted: function () {
-            this.$axios.get("/wow/get_info").then(response => {
-                this.heros = response.data.heros;
-                this.gifts = response.data.gifts;
-                response.data.gifts.map(item => {
-                    if (item.used)
-                        this.usedGifts.push(item);
-                    else
-                        this.activeGifts.push(item);
-                });
-                this.currencies = response.data.currencies;
-                this.wallets = response.data.wallets;
-                let availableCurrencies = [];
-                this.wallets.map(item => {
-                    availableCurrencies.push(item.currency_id)
-                });
-                this.currencies.map(item => {
-                    if (!availableCurrencies.includes(item))
-                        this.wallets.push({
-                            currency_id: item,
-                            amount: 0
-                        })
-                });
-                response.data.selling_heros.map(item => {
-                    this.currentSellingHeros.push(item.hero_name);
-                })
+            this.heros = this.$auth.user.heros;
+            this.gifts = this.$auth.user.gifts;
+            this.$auth.user.gifts.map(item => {
+                if (item.used)
+                    this.usedGifts.push(item);
+                else
+                    this.activeGifts.push(item);
             });
-            var x = document.getElementsByClassName("wowhead-tooltip wowhead-tooltip-width-restriction wowhead-tooltip-width-320");
-
-            console.log("DDD");
+            this.currencies = this.$auth.user.currencies;
+            this.wallets = [...this.$auth.user.wallets];
+            let availableCurrencies = [];
+            this.wallets.map(item => {
+                availableCurrencies.push(item.currency_id)
+            });
+            this.currencies.map(item => {
+                if (!availableCurrencies.includes(item))
+                    this.wallets.push({
+                        currency_id: item,
+                        amount: 0
+                    })
+            });
+            this.$auth.user.selling_heros.map(item => {
+                this.currentSellingHeros.push(item.hero_name);
+            })
             // console.log(window.WH);
         },
         data() {

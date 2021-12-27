@@ -89,9 +89,12 @@ export default {
           property: 'body',
           type: false
         },
+        user: {
+          property: false
+        },
         endpoints: {
           login: { url: 'login', method: 'post'},
-          user: false,
+          user: {url: 'wow/get_info', method: 'get'},
           // user: { url: 'me', method: 'get', propertyName: 'data' },
           logout: false
         }

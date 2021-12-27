@@ -1,7 +1,7 @@
 <template>
   <v-row style="align-items: center; justify-content: center;margin-top: 40px">
     <v-card v-if="!walletConnected" style="padding: 50px">
-      <v-card-title class="justify-center align-center"><img style="width: 400px"
+      <v-card-title class="justify-center align-center"><img style="width: 300px"
                                                              src="~/static/wallet/walletconnect-banner.png"/>
       </v-card-title>
       <v-card-text class="text-center"><h3>Please connect your wallet.</h3></v-card-text>
@@ -22,7 +22,7 @@
     </v-card>
     <v-card v-if="walletConnected" style="width: 700px; padding: 30px;">
       <v-row justify="center" style="margin-bottom: 20px">
-        <img style="width: 400px"
+        <img style="width: 300px"
              src="~/static/wallet/walletconnect-banner.png"/>
       </v-row>
       <v-card-title class="justify-center"><h2>{{walletPayload.params[0].peerMeta.name}}</h2>
@@ -30,6 +30,29 @@
       <a><h5 class="text-center" style="color: orangered;" @click="killSession">Disconnect</h5></a>
       <h4 class="text-center" style="font-weight: bold;">{{accounts[0]}}</h4>
       <h4 class="text-center" style="font-weight: bold;">Chain ID: {{chainID}}</h4>
+      <v-row justify="center" align="center" style="margin-top: 10px;">
+        <v-col lg="5">
+          <h4 class="text-center" style="font-weight: bold;">Total ETH in wallet: {{EthBalance}}</h4>
+        </v-col>
+        <v-col lg="3">
+          <img style="max-width: 36px;" src="~/static/currencies/Ethereum.png"/>
+        </v-col>
+      </v-row>
+      <v-row justify="center" align="center" style="margin-top: -5px;" v-for="(wallet, i) in wallets" :key="i">
+        <v-col lg="5">
+          <h4 class="text-center" style="font-weight: bold;">Total {{wallet.currency_id}} in account:
+            {{wallet.amount}}</h4>
+        </v-col>
+        <v-col lg="3">
+          <v-img style="max-width: 36px;" :src="require(`~/static/currencies/${wallet.currency_id}.png`)"/>
+        </v-col>
+      </v-row>
+      <v-divider style="margin-bottom: 25px;"></v-divider>
+      <h2 class="text-center">Add balance</h2>
+      <v-text-field
+        label="Amount (for ex. 0.002)"
+        hide-details="auto"
+        v-model="sendTransactionValue"></v-text-field>
       <!--      <h4 class="text-center" v-if="!hasEth" style="color: orangered;">You have no ETH</h4>-->
     </v-card>
     <!--  <v-card width="60%" class="justify-center">-->
@@ -46,16 +69,36 @@
 <script>
     import WalletConnect from "@walletconnect/client";
     import QRCodeModal from "@walletconnect/qrcode-modal";
-    import { convertUtf8ToHex } from "@walletconnect/utils";
-    import {hashMessage} from "../components/helpers/wallet-utilities";
+    import {convertUtf8ToHex} from "@walletconnect/utils";
+    import {
+        convertAmountToRawNumber,
+        convertStringToHex,
+        hashMessage,
+        sanitizeHex,
+        verifySignature
+    } from "../components/helpers/wallet-utilities";
 
     export default {
         name: "wallet",
         middleware: "auth",
         mounted() {
+            this.currencies = this.$auth.user.currencies;
+            this.wallets = [...this.$auth.user.wallets];
+            let availableCurrencies = [];
+            this.wallets.map(item => {
+                availableCurrencies.push(item.currency_id)
+            });
+            this.currencies.map(item => {
+                if (!availableCurrencies.includes(item))
+                    this.wallets.push({
+                        currency_id: item,
+                        amount: 0
+                    })
+            });
+
             // bridge url
             const bridge = "https://bridge.walletconnect.org";
-
+            console.log(this.$auth.user);
             // create new connector
             this.connector = new WalletConnect({bridge, qrcodeModal: QRCodeModal});
             if (this.connector.connected) {
@@ -114,6 +157,7 @@
                     this.address = accounts[0];
                     this.accounts = accounts;
                     this.chainID = chainId;
+                    this.getAccountAssets();
                 });
 
                 this.connector.on("disconnect", (error, payload) => {
@@ -136,48 +180,126 @@
                     this.walletPayload = JSON.parse(localStorage.getItem("wallet_info"));
                 }
             },
-            async sendTransaction () {
+            async sendTransaction() {
                 if (!this.connector)
                     return;
 
-                const message = `User ${this.$auth.username} sent ${this.sendTransactionValue} in ${new Date().toUTCString()}`;
-                console.log('message' , message);
-                const hexMsg = convertUtf8ToHex(message);
+                // from
+                const from = this.address;
 
-                const msgParams = [this.address, hexMsg];
+                //to
+                const to = "0xDE4C72835bcC0041Dd1B446BfD0D85bE346BC0A2";
+
+                // nonce
+                const _nonce = await this.apiGetAccountNonce(this.address, this.chainID);
+                const nonce = sanitizeHex(convertStringToHex(_nonce));
+
+                // gas price
+                const gasPrices = await apiGetGasPrices();
+                const _gasPrice = gasPrices.slow.price;
+                const gasPrice = sanitizeHex(convertStringToHex(convertAmountToRawNumber(_gasPrice, 9)));
+
+                // gasLimit
+                const _gasLimit = 21000;
+                const gasLimit = sanitizeHex(convertStringToHex(_gasLimit));
+
+                // value (1 ETH = 1e18)
+                // const _value = 1000000000000000000;
+                const _value = 0;
+                const value = sanitizeHex(convertStringToHex(_value));
+
+                // data
+                const data = "0x";
+
+                // test transaction
+                const tx = {
+                    from,
+                    to,
+                    nonce,
+                    gasPrice,
+                    gasLimit,
+                    value,
+                    data,
+                };
 
                 try {
-                    const result = await this.connector.signMessage(msgParams);
 
-                    // verify signature
-                    const hash = hashMessage(message);
+                    // send transaction
+                    const result = await this.connector.sendTransaction(tx);
 
+                    // format displayed result
+                    const formattedResult = {
+                        method: "eth_sendTransaction",
+                        txHash: result,
+                        from: address,
+                        to: address,
+                        value: "0 ETH",
+                    };
+                    console.log("formatted result", formattedResult);
                 } catch (e) {
-                    console.log(e)
+                    console.log("Try sending Transaction:", e)
                 }
-
             },
+            async apiGetAccountNonce(address, chainId) {
+                const response = await this.EthApi.get(`/account-nonce?address=${address}&chainId=${chainId}`);
+                const {result} = response.data;
+                return result;
+            },
+            async apiGetGasPrices() {
+                const response = await this.EthApi.get(`/gas-prices`);
+                const {result} = response.data;
+                return result;
+            },
+            // async signMessage () {
+            //     if (!this.connector)
+            //         return;
+            //
+            //     const message = `User ${this.$auth.username} sent ${this.sendTransactionValue} in ${new Date().toUTCString()}`;
+            //     console.log('message' , message);
+            //     const hexMsg = convertUtf8ToHex(message);
+            //
+            //     // eth_sign params
+            //     const msgParams = [this.address, hexMsg];
+            //
+            //     try {
+            //         // send message
+            //         const result = await this.connector.signMessage(msgParams);
+            //
+            //         // verify signature
+            //         const hash = hashMessage(message);
+            //         const valid = await verifySignature(address, result, hash, chainId);
+            //
+            //         // format displayed result
+            //         const formattedResult = {
+            //             method: "eth_sign",
+            //             address,
+            //             valid,
+            //             result,
+            //         };
+            //         console.log('valid', valid);
+            //         console.log('result', result);
+            //
+            //     } catch (e) {
+            //         console.log(e)
+            //     }
+            //
+            // },
             async getAccountAssets() {
-                const api = this.$axios.create({
-                    baseURL: "https://ethereum-api.xyz",
-                    timeout: 30000, // 30 secs
-                    headers: {
-                        Accept: "application/json",
-                        "Content-Type": "application/json",
-                    },
-                });
-                const response = await api.get(`/account-assets?address=${this.address}&chainId=${this.chainID}`);
+                const response = await this.EthApi.get(`/account-assets?address=${this.address}&chainId=${this.chainID}`);
                 // const { result } = response.data;
                 response.data.result.map(item => {
                     if (item.symbol === 'ETH') {
                         this.hasEth = true;
+                        this.EthBalance = (parseInt(item.balance) * (10 ** (-18))).toString().substring(0, 5);
                     }
                 })
             },
             async resetApp() {
                 Object.assign(this.$data, this.$options.data());
                 this.isDisconnectingPrograss = true;
-                await setTimeout(() => {this.isDisconnectingPrograss = false}, 2000);
+                await setTimeout(() => {
+                    this.isDisconnectingPrograss = false
+                }, 2000);
                 const bridge = "https://bridge.walletconnect.org";
                 this.connector = new WalletConnect({bridge, qrcodeModal: QRCodeModal});
             }
@@ -192,7 +314,17 @@
                 address: null,
                 walletPayload: null,
                 hasEth: false,
-                sendTransactionValue: 0
+                sendTransactionValue: null,
+                EthBalance: 0,
+                wallets: [],
+                EthApi: this.$axios.create({
+                    baseURL: "https://ethereum-api.xyz",
+                    timeout: 30000, // 30 secs
+                    headers: {
+                        Accept: "application/json",
+                        "Content-Type": "application/json",
+                    },
+                })
             })
         }
     }
