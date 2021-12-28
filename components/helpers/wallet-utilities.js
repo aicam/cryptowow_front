@@ -79,6 +79,8 @@ export function sanitizeHex(hex) {
   return "0x" + hex;
 }
 
+
+
 export function convertStringToHex(value) {
   return new BigNumber(`${value}`).toString(16);
 }

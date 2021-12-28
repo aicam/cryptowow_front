@@ -1,5 +1,36 @@
 <template>
   <v-row style="align-items: center; justify-content: center;margin-top: 40px">
+    <v-dialog v-model="dialog"
+              width="500">
+      <v-card style="padding-bottom: 20px">
+        <v-card-title class="text-h5 grey">
+          {{dialogTitle}}
+        </v-card-title>
+        <v-card-text class="justify-center">
+          <h3 class="text-center" style="margin-top: 10px;">{{dialogText}}</h3>
+        </v-card-text>
+
+        <img src="~/static/pending_transaction.gif"
+             style="display: block;width: 128px;margin-left: auto;margin-right: auto;"/>
+      </v-card>
+    </v-dialog>
+
+    <v-snackbar
+      v-model="snackbar">
+      {{snackbarText}}
+      <template v-slot:action="{ attrs }">
+        <v-btn
+          color="red"
+          text
+          v-bind="attrs"
+          @click="snackbar = false"
+        >
+          Close
+        </v-btn>
+      </template>
+    </v-snackbar>
+
+
     <v-card v-if="!walletConnected" style="padding: 50px">
       <v-card-title class="justify-center align-center"><img style="width: 300px"
                                                              src="~/static/wallet/walletconnect-banner.png"/>
@@ -49,10 +80,35 @@
       </v-row>
       <v-divider style="margin-bottom: 25px;"></v-divider>
       <h2 class="text-center">Add balance</h2>
-      <v-text-field
-        label="Amount (for ex. 0.002)"
-        hide-details="auto"
-        v-model="sendTransactionValue"></v-text-field>
+      <v-row>
+        <v-col lg="6">
+          <v-text-field
+            label="Amount (for ex. 0.002)"
+            hide-details="auto"
+            :rules="[(x) => {return x != null ? parseFloat(x).toString() === x.toString() : true}]"
+            v-model="sendTransactionValue"></v-text-field>
+        </v-col>
+        <v-col lg="6">
+          <v-select v-model="selectedCurrency" :items="wallets.map(item => item.currency_id)">
+            <template v-slot:selection="{item, index}">
+              {{item}}
+              <v-divider></v-divider>
+              <v-img max-width="48px" :src="require(`~/static/currencies/${item}.png`)"/>
+            </template>
+            <template v-slot:item="{item}">
+              {{item}}
+              <v-divider></v-divider>
+              <v-img max-width="48px" :src="require(`~/static/currencies/${item}.png`)"/>
+            </template>
+          </v-select>
+        </v-col>
+      </v-row>
+      <v-btn
+        class="success"
+        @click="initiateSendTransaction"
+      >
+        Send Transaction
+      </v-btn>
       <!--      <h4 class="text-center" v-if="!hasEth" style="color: orangered;">You have no ETH</h4>-->
     </v-card>
     <!--  <v-card width="60%" class="justify-center">-->
@@ -70,6 +126,9 @@
     import WalletConnect from "@walletconnect/client";
     import QRCodeModal from "@walletconnect/qrcode-modal";
     import {convertUtf8ToHex} from "@walletconnect/utils";
+    import Web3 from "web3"
+    import WalletConnectProvider from "@walletconnect/web3-provider";
+
     import {
         convertAmountToRawNumber,
         convertStringToHex,
@@ -95,7 +154,9 @@
                         amount: 0
                     })
             });
-
+            setTimeout(() => {
+                this.isDisconnectingPrograss = false
+            }, 2000);
             // bridge url
             const bridge = "https://bridge.walletconnect.org";
             console.log(this.$auth.user);
@@ -180,10 +241,37 @@
                     this.walletPayload = JSON.parse(localStorage.getItem("wallet_info"));
                 }
             },
-            async sendTransaction() {
+            async initiateSendTransaction() {
+                if (this.selectedCurrency === 'Ethereum') {
+                    this.sendTransactionETH()
+                } else {
+                    const maticProvider = new WalletConnectProvider(
+                        {
+                            rpc: {
+                                80001: 'https://rpc-mumbai.matic.today'
+                            }
+                        }
+                    );
+                    await maticProvider.enable();
+
+                    //  Create Web3 instance
+                    const web3 = new Web3(maticProvider);
+                    tx = {
+                        from: this.address,
+                        to: '0x5C9A480735D1DFba5c3FE8699e5D16D70c056081',
+                        value: parseFloat(this.sendTransactionValue) * (10 ** 18)
+                    };
+                    web3.eth.sendTransaction(tx);
+                }
+            },
+            async sendTransactionETH() {
                 if (!this.connector)
                     return;
-
+                if (this.selectedCurrency == 'CWT') {
+                    this.snackbarText = "CWT is given by event prizes and gifts, you can't buy it";
+                    this.snackbar = true;
+                    return
+                }
                 // from
                 const from = this.address;
 
@@ -195,7 +283,7 @@
                 const nonce = sanitizeHex(convertStringToHex(_nonce));
 
                 // gas price
-                const gasPrices = await apiGetGasPrices();
+                const gasPrices = await this.apiGetGasPrices();
                 const _gasPrice = gasPrices.slow.price;
                 const gasPrice = sanitizeHex(convertStringToHex(convertAmountToRawNumber(_gasPrice, 9)));
 
@@ -205,7 +293,7 @@
 
                 // value (1 ETH = 1e18)
                 // const _value = 1000000000000000000;
-                const _value = 0;
+                const _value = parseFloat(this.sendTransactionValue) * (10 ** 18);
                 const value = sanitizeHex(convertStringToHex(_value));
 
                 // data
@@ -224,6 +312,9 @@
 
                 try {
 
+                    this.dialogTitle = "Pending Transaction";
+                    this.dialogText = "Please approve transaction in your wallet";
+                    this.dialog = true;
                     // send transaction
                     const result = await this.connector.sendTransaction(tx);
 
@@ -237,55 +328,58 @@
                     };
                     console.log("formatted result", formattedResult);
                 } catch (e) {
+                    this.dialog = false;
+                    this.snackbarText = "User canceled transaction";
+                    this.snackbar = true;
                     console.log("Try sending Transaction:", e)
                 }
             },
             async apiGetAccountNonce(address, chainId) {
-                const response = await this.EthApi.get(`/account-nonce?address=${address}&chainId=${chainId}`);
+                const response = await this.EthApi().get(`/account-nonce?address=${address}&chainId=${chainId}`);
                 const {result} = response.data;
                 return result;
             },
             async apiGetGasPrices() {
-                const response = await this.EthApi.get(`/gas-prices`);
+                const response = await this.EthApi().get(`/gas-prices`);
                 const {result} = response.data;
                 return result;
             },
-            // async signMessage () {
-            //     if (!this.connector)
-            //         return;
-            //
-            //     const message = `User ${this.$auth.username} sent ${this.sendTransactionValue} in ${new Date().toUTCString()}`;
-            //     console.log('message' , message);
-            //     const hexMsg = convertUtf8ToHex(message);
-            //
-            //     // eth_sign params
-            //     const msgParams = [this.address, hexMsg];
-            //
-            //     try {
-            //         // send message
-            //         const result = await this.connector.signMessage(msgParams);
-            //
-            //         // verify signature
-            //         const hash = hashMessage(message);
-            //         const valid = await verifySignature(address, result, hash, chainId);
-            //
-            //         // format displayed result
-            //         const formattedResult = {
-            //             method: "eth_sign",
-            //             address,
-            //             valid,
-            //             result,
-            //         };
-            //         console.log('valid', valid);
-            //         console.log('result', result);
-            //
-            //     } catch (e) {
-            //         console.log(e)
-            //     }
-            //
-            // },
+            async signMessage() {
+                if (!this.connector)
+                    return;
+
+                const message = `User ${this.$auth.username} sent ${this.sendTransactionValue} in ${new Date().toUTCString()}`;
+                console.log('message', message);
+                const hexMsg = convertUtf8ToHex(message);
+
+                // eth_sign params
+                const msgParams = [this.address, hexMsg];
+
+                try {
+                    // send message
+                    const result = await this.connector.signMessage(msgParams);
+
+                    // verify signature
+                    const hash = hashMessage(message);
+                    const valid = await verifySignature(address, result, hash, chainId);
+
+                    // format displayed result
+                    const formattedResult = {
+                        method: "eth_sign",
+                        address,
+                        valid,
+                        result,
+                    };
+                    console.log('valid', valid);
+                    console.log('result', result);
+
+                } catch (e) {
+                    console.log(e)
+                }
+
+            },
             async getAccountAssets() {
-                const response = await this.EthApi.get(`/account-assets?address=${this.address}&chainId=${this.chainID}`);
+                const response = await this.EthApi().get(`/account-assets?address=${this.address}&chainId=${this.chainID}`);
                 // const { result } = response.data;
                 response.data.result.map(item => {
                     if (item.symbol === 'ETH') {
@@ -302,12 +396,22 @@
                 }, 2000);
                 const bridge = "https://bridge.walletconnect.org";
                 this.connector = new WalletConnect({bridge, qrcodeModal: QRCodeModal});
+            },
+            EthApi() {
+                return this.$axios.create({
+                    baseURL: "https://ethereum-api.xyz",
+                    timeout: 30000, // 30 secs
+                    headers: {
+                        Accept: "application/json",
+                        "Content-Type": "application/json",
+                    },
+                })
             }
         },
         data() {
             return ({
                 walletConnected: false,
-                isDisconnectingPrograss: false,
+                isDisconnectingPrograss: true,
                 connector: null,
                 accounts: null,
                 chainID: null,
@@ -317,14 +421,12 @@
                 sendTransactionValue: null,
                 EthBalance: 0,
                 wallets: [],
-                EthApi: this.$axios.create({
-                    baseURL: "https://ethereum-api.xyz",
-                    timeout: 30000, // 30 secs
-                    headers: {
-                        Accept: "application/json",
-                        "Content-Type": "application/json",
-                    },
-                })
+                selectedCurrency: "",
+                dialog: false,
+                dialogTitle: "",
+                dialogText: "",
+                snackbar: false,
+                snackbarText: ""
             })
         }
     }
