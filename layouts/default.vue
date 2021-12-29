@@ -126,6 +126,12 @@
                         show: this.$auth.loggedIn
                     },
                     {
+                        icon: 'mdi-account-cash',
+                        title: 'Buy Hero',
+                        to: '/buy_hero',
+                        show: this.$auth.loggedIn
+                    },
+                    {
                         icon: 'mdi-account-arrow-left',
                         title: 'Login',
                         to: '/login',

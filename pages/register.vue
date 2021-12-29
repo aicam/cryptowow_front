@@ -171,10 +171,10 @@
                         wallet: this.walletType,
                         wallet_id: this.walletAddress
                     })).then(response => {
-                        if (response.data.status_code === 0) {
+                        if (response.data.status === 0) {
                             this.snacktxt = "Username already exist, please choose another username";
                             this.snackbar = true;
-                        } else if (response.data.status_code === 1) {
+                        } else if (response.data.status === 1) {
                             this.registerStarted = true;
                             this.snacktxt = "Your registration is almost done!";
                             this.snackbar = true;

@@ -72,6 +72,11 @@
                     {{item}}
                   </v-list-item-content>
                 </v-list-item>
+                <v-list-item v-if="note">
+                  <v-list-item-content @click="changeMenu(5)">
+                    Note
+                  </v-list-item-content>
+                </v-list-item>
               </v-list-item-group>
             </v-list>
           </v-col>
@@ -265,6 +270,16 @@
                   </v-card>
                 </v-stepper-content>
 
+                <!-- Note section (buy hero) -->
+                <v-stepper-content step="5"
+                                   v-if="note">
+                  <v-card style="padding: 30px;margin-top: 80px;background-color:rgba(0, 0, 0, 0.5);" class="justify-center" >
+                    <h2 class="text-center">This note is written by hero owner to emphasize on hero important features</h2>
+                    <v-divider></v-divider>
+                    <h3 class="text-center">{{note}}</h3>
+                  </v-card>
+                </v-stepper-content>
+
               </v-stepper-items>
             </v-stepper>
           </v-col>
@@ -280,7 +295,7 @@
     export default {
         middleware: 'auth',
         name: "HeroDialog",
-        props: ["dialog", "heroName", "closeFunc"],
+        props: ["dialog", "heroName", "closeFunc", "note"],
         head: {
             script: [{
                 src: 'https://wow.zamimg.com/widgets/power.js'

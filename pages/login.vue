@@ -98,7 +98,7 @@
                             password: this.password
                         }
                     }).then(response => {
-                        if (response.data.status_code == 1) {
+                        if (response.data.status === 1) {
                             this.snacktext = "Login successful";
                             this.snackbar = true;
                             setTimeout(() => {
