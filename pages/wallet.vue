@@ -159,7 +159,6 @@
             }, 2000);
             // bridge url
             const bridge = "https://bridge.walletconnect.org";
-            console.log(this.$auth.user);
             // create new connector
             this.connector = new WalletConnect({bridge, qrcodeModal: QRCodeModal});
             if (this.connector.connected) {
@@ -249,19 +248,31 @@
                         {
                             rpc: {
                                 80001: 'https://rpc-mumbai.matic.today'
-                            }
+                            },
                         }
                     );
                     await maticProvider.enable();
 
                     //  Create Web3 instance
                     const web3 = new Web3(maticProvider);
-                    tx = {
+                    const tx = {
                         from: this.address,
                         to: '0x5C9A480735D1DFba5c3FE8699e5D16D70c056081',
                         value: parseFloat(this.sendTransactionValue) * (10 ** 18)
                     };
-                    web3.eth.sendTransaction(tx);
+                    const newContract = new web3.eth.Contract({});
+                    this.dialogTitle = "Pending Transaction";
+                    this.dialogText = "Please approve transaction in your wallet";
+                    this.dialog = true;
+                    try {
+                        const result = await web3.eth.signTransaction(tx);
+                        console.log(result);
+                    } catch (e) {
+                        this.dialog = false;
+                        this.snackbarText = "User canceled transaction";
+                        this.snackbar = true;
+                        console.log("Try sending Transaction:", e)
+                    }
                 }
             },
             async sendTransactionETH() {

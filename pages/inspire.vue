@@ -12,6 +12,7 @@
         <v-stepper v-model="sellingSteps" justify="space-between">
           <v-stepper-content step="0">
             <h4>Add new price based on available cryptocurrencies</h4>
+            <h4 style="color: orangered;font-weight: bold">Note: customers will choose to buy with currency they prefer.</h4>
             <h4>You can write price both in float (0.0025) or exponent of 10 (25e-4)</h4>
             <v-row style="margin-bottom: 10px; border-bottom: 2px solid orangered;">
               <v-col lg="4">
