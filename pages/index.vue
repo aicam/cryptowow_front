@@ -1,6 +1,6 @@
 <template>
   <v-row>
-    <EventsDialog :dialog="eventsDialogShow" @clicked="this.closeDialog" />
+    <EventsDialog :dialog="eventsDialogShow" @clicked="this.closeDialog"/>
     <v-row justify="center" align="center">
       <v-col>
         <v-row class="justify-center">
@@ -26,7 +26,7 @@
             <v-btn
               color="primary"
               nuxt
-              to="/inspire"
+              to="/register"
             >
               Sign Up
             </v-btn>
@@ -47,14 +47,14 @@
             <v-btn class="success">Manual</v-btn>
           </v-row>
           <v-card-title>Server Status</v-card-title>
-          <v-card-text>
+          <v-card-text v-if="serverStatus">
             <div class="row justify-space-between">
               <v-icon class="float-left" color="green">mdi-account-check</v-icon>
-              34 Online Players
+              {{serverStatus.online}} Online Players
             </div>
             <div class="row justify-space-between">
               <v-icon color="#535454">mdi-account-check</v-icon>
-              341 Players
+              {{serverStatus.total}} Players
             </div>
           </v-card-text>
         </v-card>
@@ -103,18 +103,30 @@
 </style>
 <script>
     import EventsDialog from "../components/EventsDialog";
+
     export default {
+        mounted() {
+            this.$axios.get("/server_status").then(response => {
+                this.serverStatus = response.data.server_status;
+            })
+        },
         data: function () {
             return ({
-            eventsDialogShow: false,
-            selectedItem: 1,
-            items: [
-                {text: 'Bug Tracker', icon: 'mdi-clock'},
-                {text: 'Guide', icon: 'mdi-account'},
-                {text: 'Q&A', icon: 'mdi-flag'},
-            ]})
+                eventsDialogShow: false,
+                selectedItem: 1,
+                serverStatus: null,
+                items: [
+                    {text: 'Bug Tracker', icon: 'mdi-clock'},
+                    {text: 'Guide', icon: 'mdi-account'},
+                    {text: 'Q&A', icon: 'mdi-flag'},
+                ]
+            })
         },
-        methods: {closeDialog: function ()  {this.eventsDialogShow = false}},
+        methods: {
+            closeDialog: function () {
+                this.eventsDialogShow = false
+            }
+        },
         components: {EventsDialog},
     }
 </script>

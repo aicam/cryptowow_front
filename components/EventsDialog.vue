@@ -28,16 +28,16 @@
         <v-card v-for="event in eventsList" v-bind:key="event.title" class="event_body">
           <v-row>
             <v-col sm="3">
-              <img :src="event.image_src" height="250px"/>
+              <v-img :src="event.icon" max-width="300"/>
             </v-col>
             <v-col sm="9">
               <p style="font-size: 30px; color: #47494e; font-family: 'DejaVu Serif';">
                 <v-icon x-large color="#D0BD73">mdi-halloween</v-icon>
-                {{event.title}}
+                {{event.conditions}}
               </p>
               <p style="font-size: 25px; color: black;">{{event.description}}</p>
-              <p style="font-size: 25px;"><v-icon x-large>mdi-gift</v-icon> {{event.prize}}</p>
-              <Countdown :end="getCountdownTime(event.deadline)" style="color: orangered;"></Countdown>
+              <p style="font-size: 25px;"><v-icon x-large>mdi-gift</v-icon> {{event.gift}}</p>
+              <Countdown :end="getCountdownTime(event.end_date)" style="color: orangered;"></Countdown>
             </v-col>
           </v-row>
         </v-card>
@@ -51,6 +51,12 @@
     export default {
         props: ['dialog'],
         components: {Countdown},
+        mounted() {
+          this.$axios.get("/events").then(response => {
+              console.log(response.data);
+              this.eventsList = response.data;
+          })
+        },
         methods: {
             closeDia() {
                 console.log("closeDia called");
@@ -73,13 +79,7 @@
                 notifications: false,
                 sound: true,
                 widgets: false,
-                eventsList: [{
-                    title: "Kill 200 heros",
-                    description: "After you killed 200 heros in Arena or BG, you will receive full pvp set by mail",
-                    deadline: "2021-12-02T15:04:05",
-                    prize: "Full PVP set",
-                    image_src: "https://media.mmo-champion.com/images/news/2011/october/cupcakes.jpg"
-                }]
+                eventsList: []
             }
         },
     }
