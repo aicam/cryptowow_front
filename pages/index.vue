@@ -2,81 +2,82 @@
   <v-row>
     <ManualDialog :dialog="manualDialog" v-on:close-func="manualDialog = false"/>
     <EventsDialog :dialog="eventsDialogShow" @clicked="this.closeDialog"/>
-    <v-row align="center">
-      <v-col lg="10">
+    <v-row>
+      <v-col lg="9">
         <v-row justify="center" style="margin-top: 40px;margin-bottom: 3px;">
           <v-btn :class="selectedMenuHome === 0 ? 'warning' : 'dark'" @click="selectedMenuHome = 0">Home</v-btn>
           <v-btn :class="selectedMenuHome === 1 ? 'warning' : 'dark'" @click="selectedMenuHome = 1">Rankigs</v-btn>
         </v-row>
 
-        <v-card v-if="selectedMenuHome === 1">
-          <v-simple-table>
-            <template v-slot:default>
-              <thead>
-              <tr>
-                <th class="text-left">
-                  Rank
-                </th>
-                <th class="text-left">
-                  Top Today Honor
-                </th>
-                <th class="text-left">
-                  Top Today Killers
-                </th>
-                <th class="text-left">
-                  Top Overall Killers
-                </th>
-                <th class="text-left">
-                  Top Online Players
-                </th>
-                <th class="text-left">
-                  Richest
-                </th>
-              </tr>
-              </thead>
-              <tbody>
-              <tr
-                v-for="(rank, i) in rankings"
-                :key="i">
-                <th>
-                  {{i + 1}}
-                </th>
-                <th>
-                  {{rank.today_honor}}
-                </th>
-                <th>
-                  {{rank.today_kills}}
-                </th>
-                <th>
-                  {{rank.total_kills}}
-                </th>
-                <th>
-                  {{rank.total_time}}
-                </th>
-                <th>
-                  {{rank.money}}
-                </th>
-              </tr>
-              </tbody>
-            </template>
-          </v-simple-table>
-        </v-card>
+        <v-row v-if="selectedMenuHome === 1">
+          <v-card style="background-color:rgba(0, 0, 0, 0.5);">
+            <v-simple-table style="background-color:rgba(0, 0, 0, 0.5);">
+              <template v-slot:default>
+                <thead>
+                <tr>
+                  <th class="text-left">
+                    Rank
+                  </th>
+                  <th class="text-left">
+                    Top Today Honor
+                  </th>
+                  <th class="text-left">
+                    Top Today Killers
+                  </th>
+                  <th class="text-left">
+                    Top Overall Killers
+                  </th>
+                  <th class="text-left">
+                    Top Online Players
+                  </th>
+                  <th class="text-left">
+                    Richest
+                  </th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr
+                  v-for="(rank, i) in rankings"
+                  :key="i">
+                  <th>
+                    {{i + 1}}
+                  </th>
+                  <th>
+                    {{rank.today_honor}}
+                  </th>
+                  <th>
+                    {{rank.today_kills}}
+                  </th>
+                  <th>
+                    {{rank.total_kills}}
+                  </th>
+                  <th>
+                    {{rank.total_time}}
+                  </th>
+                  <th>
+                    {{rank.money}}
+                  </th>
+                </tr>
+                </tbody>
+              </template>
+            </v-simple-table>
+          </v-card>
+        </v-row>
 
 
-        <v-card v-if="selectedMenuHome === 0" class="logo py-4 d-flex justify-center">
-          <img src="~/static/lich_king.jpeg" height="200vh"/>
-          <VuetifyLogo/>
-        </v-card>
-        <v-card v-if="selectedMenuHome === 0">
-          <v-card-title class="headline justify-center">
+        <v-row v-if="selectedMenuHome === 0"
+               justify="center" style="background-color:rgba(0, 0, 0, 0.5);">
+          <v-col lg="3">
+            <img style="opacity: 0.7;" src="~/static/lich_king.jpeg" height="200vh"/>
+          </v-col>
+          <v-col lg="3">
+            <VuetifyLogo style="opacity: 0.5;"/>
+          </v-col>
+          <v-card style="padding: 25px;">
             <p class="font-weight-bold card_title"> Play World of Warcraft with Cryptocurrency Payment </p>
-          </v-card-title>
-          <v-card-text>
-            <p>Vuetify is a progressive Material Design component framework for Vue.js. It was designed to empower
-              developers to create amazing applications.</p>
-
-          </v-card-text>
-          <v-card-actions>
+            <p>Are you one of old fans of World of Warcraft? if yes you sure know Lich King and definitely know about cryptocurrencies and Bitcoin.
+            This server provides cash out system by cryptocurrency, so you can play and earn at the same time. This is what we call Cryptocurrency World of
+            Warcraft (CryptoWoW)</p>
             <v-spacer/>
             <v-btn
               color="primary"
@@ -85,10 +86,10 @@
             >
               Sign Up
             </v-btn>
-          </v-card-actions>
-        </v-card>
+          </v-card>
+        </v-row>
       </v-col>
-      <v-col lg="2">
+      <v-col lg="3">
         <v-card>
           <v-row style="padding: 10px;" justify="center" align="center">
             <v-btn block style="background-color: #7F828B;" v-on:click="eventsDialogShow = true">
