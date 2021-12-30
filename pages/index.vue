@@ -1,18 +1,73 @@
 <template>
   <v-row>
+    <ManualDialog :dialog="manualDialog" v-on:close-func="manualDialog = false"/>
     <EventsDialog :dialog="eventsDialogShow" @clicked="this.closeDialog"/>
-    <v-row justify="center" align="center">
-      <v-col>
-        <v-row class="justify-center">
-          <v-banner>
-            <img src="~static/wow_horizontal.png" height="130px">
-          </v-banner>
+    <v-row align="center">
+      <v-col lg="10">
+        <v-row justify="center" style="margin-top: 40px;margin-bottom: 3px;">
+          <v-btn :class="selectedMenuHome === 0 ? 'warning' : 'dark'" @click="selectedMenuHome = 0">Home</v-btn>
+          <v-btn :class="selectedMenuHome === 1 ? 'warning' : 'dark'" @click="selectedMenuHome = 1">Rankigs</v-btn>
         </v-row>
-        <v-card class="logo py-4 d-flex justify-center">
+
+        <v-card v-if="selectedMenuHome === 1">
+          <v-simple-table>
+            <template v-slot:default>
+              <thead>
+              <tr>
+                <th class="text-left">
+                  Rank
+                </th>
+                <th class="text-left">
+                  Top Today Honor
+                </th>
+                <th class="text-left">
+                  Top Today Killers
+                </th>
+                <th class="text-left">
+                  Top Overall Killers
+                </th>
+                <th class="text-left">
+                  Top Online Players
+                </th>
+                <th class="text-left">
+                  Richest
+                </th>
+              </tr>
+              </thead>
+              <tbody>
+              <tr
+                v-for="(rank, i) in rankings"
+                :key="i">
+                <th>
+                  {{i + 1}}
+                </th>
+                <th>
+                  {{rank.today_honor}}
+                </th>
+                <th>
+                  {{rank.today_kills}}
+                </th>
+                <th>
+                  {{rank.total_kills}}
+                </th>
+                <th>
+                  {{rank.total_time}}
+                </th>
+                <th>
+                  {{rank.money}}
+                </th>
+              </tr>
+              </tbody>
+            </template>
+          </v-simple-table>
+        </v-card>
+
+
+        <v-card v-if="selectedMenuHome === 0" class="logo py-4 d-flex justify-center">
           <img src="~/static/lich_king.jpeg" height="200vh"/>
           <VuetifyLogo/>
         </v-card>
-        <v-card>
+        <v-card v-if="selectedMenuHome === 0">
           <v-card-title class="headline justify-center">
             <p class="font-weight-bold card_title"> Play World of Warcraft with Cryptocurrency Payment </p>
           </v-card-title>
@@ -33,7 +88,7 @@
           </v-card-actions>
         </v-card>
       </v-col>
-      <v-col cols="12" sm="2" md="2">
+      <v-col lg="2">
         <v-card>
           <v-row style="padding: 10px;" justify="center" align="center">
             <v-btn block style="background-color: #7F828B;" v-on:click="eventsDialogShow = true">
@@ -44,7 +99,7 @@
             </v-btn>
           </v-row>
           <v-row style="padding: 10px;" justify="center" align="center">
-            <v-btn class="success">Manual</v-btn>
+            <v-btn class="success" @click="manualDialog = true">Manual</v-btn>
           </v-row>
           <v-card-title>Server Status</v-card-title>
           <v-card-text v-if="serverStatus">
@@ -103,18 +158,23 @@
 </style>
 <script>
     import EventsDialog from "../components/EventsDialog";
+    import ManualDialog from "../components/ManualDialog";
 
     export default {
         mounted() {
             this.$axios.get("/server_status").then(response => {
                 this.serverStatus = response.data.server_status;
+                this.rankings = response.data.rankings;
             })
         },
         data: function () {
             return ({
                 eventsDialogShow: false,
+                manualDialog: false,
                 selectedItem: 1,
                 serverStatus: null,
+                selectedMenuHome: 0,
+                rankings: null,
                 items: [
                     {text: 'Bug Tracker', icon: 'mdi-clock'},
                     {text: 'Guide', icon: 'mdi-account'},
@@ -127,6 +187,6 @@
                 this.eventsDialogShow = false
             }
         },
-        components: {EventsDialog},
+        components: {ManualDialog, EventsDialog},
     }
 </script>

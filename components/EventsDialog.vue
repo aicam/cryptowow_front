@@ -60,7 +60,7 @@
         methods: {
             closeDia() {
                 console.log("closeDia called");
-                this.$emit('clicked')
+                this.$emit('clicked');
                 // this.dialog = false
             },
             getCountdownTime(newTime){
