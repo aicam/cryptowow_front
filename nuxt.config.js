@@ -43,6 +43,7 @@ export default {
     '@nuxtjs/axios',
     '@nuxtjs/auth-next'
   ],
+  target: 'static',
   colorMode: {
     preference: 'system', // default value of $colorMode.preference
     fallback: 'light', // fallback value if not system preference found
@@ -76,7 +77,7 @@ export default {
   build: {
   },
   axios: {
-    baseURL: 'http://127.0.0.1:4300/'
+    baseURL: 'http://194.5.192.243:4300/'
   },
 
   auth: {

@@ -10,6 +10,7 @@
 //   9: {name: "Warlock", icon: "https://wow.zamimg.com/images/wow/icons/medium/classicon_warlock.jpg"},
 //   10: {name: "Druid", icon: "https://wow.zamimg.com/images/wow/icons/medium/classicon_druid.jpg"}
 // };
+export default {}
 export const wowDicts = {
   heroClasses: {
     1: {name: "Warrior", icon: "https://wow.zamimg.com/images/wow/icons/large/classicon_warrior.jpg"},

@@ -132,6 +132,12 @@
                         show: this.$auth.loggedIn
                     },
                     {
+                        icon: 'mdi-wallet',
+                        title: 'Wallet',
+                        to: '/wallet',
+                        show: this.$auth.loggedIn
+                    },
+                    {
                         icon: 'mdi-account-arrow-left',
                         title: 'Login',
                         to: '/login',

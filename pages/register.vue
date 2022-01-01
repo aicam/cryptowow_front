@@ -54,6 +54,7 @@
                 color="success"
                 class="mr-4"
                 @click="signup"
+                :disabled="disableSubmit"
               >
                 Sign Up
               </v-btn>
@@ -148,12 +149,19 @@
             walletType: "",
             walletAddress: "",
             availableWallets: "",
+            csrfToken: "",
+            disableSubmit: false
         }),
         mounted() {
-            this.$axios.get("/get_available_wallets")
-                .then(response => {
-                    this.availableWallets = response.data.wallets;
-                })
+            this.$axios.get("/get_csrf").then(response => {
+                if (response.data.status === -1) {
+                    this.snacktxt = "Each client can create account every 30 minutes";
+                    this.snackbar = true;
+                    this.disableSubmit = true;
+                } else {
+                    this.csrfToken = response.data.body;
+                }
+            })
         },
         methods: {
             signup: function () {
@@ -164,6 +172,7 @@
                 }
                 if (this.dialog === true) {
                     this.dialog = false;
+                    this.$axios.setHeader("X-CSRF-Token", this.csrfToken.split(' ')[1]);
                     this.$axios.post("/register", JSON.stringify({
                         email: this.email,
                         username: this.username,
@@ -179,6 +188,9 @@
                             this.snacktxt = "Your registration is almost done!";
                             this.snackbar = true;
                             setTimeout(() => {this.stepper = 2}, 3000);
+                        } else {
+                            this.snacktxt = response.data.body;
+                            this.snackbar = true;
                         }
                     });
                     return;

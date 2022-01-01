@@ -30,6 +30,7 @@
             v-model="username"
             :rules="nameRules"
             label="Username"
+            v-on:keyup.enter="login"
             required
           ></v-text-field>
 
@@ -37,6 +38,7 @@
             v-model="password"
             label="Password"
             type="password"
+            v-on:keyup.enter="login"
             required
           ></v-text-field>
 

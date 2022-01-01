@@ -1,5 +1,7 @@
 import { Contract, providers, utils } from "ethers";
 
+export default {}
+
 const spec = {
   magicValue: "0x1626ba7e",
   abi: [

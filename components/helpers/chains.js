@@ -1,3 +1,4 @@
+export default {}
 export const SUPPORTED_CHAINS =  [
   {
     name: "Ethereum Mainnet",

@@ -4,7 +4,7 @@ import { providers } from "ethers";
 import { eip1271 } from "./eip1271";
 import { SUPPORTED_CHAINS } from "./chains";
 import BigNumber from "bignumber.js";
-
+export default {}
 export function encodePersonalMessage(msg) {
   const data = ethUtil.toBuffer(convertUtf8ToHex(msg));
   const buf = Buffer.concat([

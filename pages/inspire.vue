@@ -144,7 +144,7 @@
       <v-card class="text-center align-center justify-space-around" style="margin-top: 20px;padding: 20px">
         <!--    <WoWTooltip text="hello" ><v-img class="tooltip" src="https://wow.zamimg.com/images/wow/icons/large/inv_hand_1h_mawraid_d_01.jpg" max-width="60px" /></WoWTooltip>-->
         <h1>Heros</h1>
-        <h4 v-if="!heros.length">You have no heros, go to game with your username and create one</h4>
+        <h4 v-if="!heros">You have no heros, go to game with your username and create one</h4>
         <v-simple-table v-if="heros">
           <template v-slot:default>
             <thead>

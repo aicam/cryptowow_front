@@ -222,6 +222,7 @@
                     </v-sheet>
                     <v-row style="max-width: 600px;">
                       <v-col
+                        v-if="mounts"
                         style="margin: 5px;"
                         lg="3"
                         v-for="(mount, i) in mountsData"
@@ -235,6 +236,7 @@
                           </a>
                         </v-row>
                       </v-col>
+                      <h3 v-if="!mounts">This hero has no mounts currently!</h3>
                     </v-row>
                   </v-card>
                 </v-stepper-content>
@@ -366,7 +368,7 @@
         mounted() {
         },
         methods: {
-            parseItemId: async (itemID) => {
+            async parseItemId(itemID) {
                 var requestOptions = {
                     method: 'GET',
                     redirect: 'follow',
@@ -384,7 +386,7 @@
                 if (storageInfo !== null) {
                     return JSON.parse(storageInfo);
                 }
-                await fetch("http://localhost:44297/https://www.wowhead.com/item=" + itemID + "&xml", requestOptions)
+                await fetch("http://" + this.corsanywhereHost + ":44297/https://www.wowhead.com/item=" + itemID + "&xml", requestOptions)
                     .then(response => response.text())
                     .then(result => {
                         // console.log(result);
@@ -423,7 +425,7 @@
                         if (storageInfo !== null) {
                             return JSON.parse(storageInfo);
                         }
-                        await fetch("http://localhost:44297/https://www.wowhead.com/achievement=" + aID, requestOptions)
+                        await fetch("http://" + this.corsanywhereHost + ":44297/https://www.wowhead.com/achievement=" + aID, requestOptions)
                             .then(response => response.text())
                             .then(result => {
                                 const rigidInfo = JSON.parse(result.split('<script type="application/ld+json">')[1].split("<\/script>")[0]);
@@ -437,7 +439,7 @@
                             });
                         return aInfo
                     };
-                    if (this.achievements.length == 0)
+                    if (!this.achievements)
                         for (let i = 0; i < this.achievementsIDs.length; i++)
                             this.achievements.push(await parseAchievementID(this.achievementsIDs[i]));
                     this.achievementLoading = false;
@@ -449,15 +451,16 @@
                         return
                     }
                     this.mountsLoading = true;
-                    this.mounts.map(async (item) => {
-                        let itemInfo = await this.parseItemId(item.id);
-                        this.mountsData.push(itemInfo);
-                    });
+                    if (this.mounts)
+                      this.mounts.map(async (item) => {
+                          let itemInfo = await this.parseItemId(item.id);
+                          this.mountsData.push(itemInfo);
+                      });
                     this.mountsLoading = false;
                 }
 
                 if (step == 4) {
-                    if (this.companionsData.length > 0) {
+                    if (this.companionsData) {
                         this.companionsLoading = false;
                         return
                     }
@@ -502,7 +505,8 @@
                 mountsLoading: true,
                 companions: [],
                 companionsData: [],
-                companionsLoading: true
+                companionsLoading: true,
+                corsanywhereHost: "194.5.192.243",
             }
         },
     }
