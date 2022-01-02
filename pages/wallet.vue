@@ -141,6 +141,10 @@
         name: "wallet",
         middleware: "auth",
         mounted() {
+            this.$axios.get("/wallet/reference").then(response => {
+                this.referenceWalletAddress = response.data.body;
+                console.log("Reference wallet address: ", this.referenceWalletAddress);
+            });
             this.currencies = this.$auth.user.currencies;
             this.wallets = [...this.$auth.user.wallets];
             let availableCurrencies = [];
@@ -232,7 +236,6 @@
 
                 if (this.connector.connected) {
                     const {chainId, accounts} = this.connector;
-                    const address = accounts[0];
                     this.walletConnected = true;
                     this.address = accounts[0];
                     this.accounts = accounts;
@@ -241,8 +244,13 @@
                 }
             },
             async initiateSendTransaction() {
+                console.log(this.selectedCurrency);
                 if (this.selectedCurrency === 'Ethereum') {
                     this.sendTransactionETH()
+                } else if (this.selectedCurrency === 'CWT') {
+                    this.snackbarText = "CWT is given by event prizes and gifts, you can't buy it";
+                    this.snackbar = true;
+                    return
                 } else {
                     const maticProvider = new WalletConnectProvider(
                         {
@@ -276,9 +284,10 @@
                 }
             },
             async sendTransactionETH() {
+                console.log("1");
                 if (!this.connector)
                     return;
-                if (this.selectedCurrency == 'CWT') {
+                if (this.selectedCurrency === 'CWT') {
                     this.snackbarText = "CWT is given by event prizes and gifts, you can't buy it";
                     this.snackbar = true;
                     return
@@ -287,14 +296,16 @@
                 const from = this.address;
 
                 //to
-                const to = "0xDE4C72835bcC0041Dd1B446BfD0D85bE346BC0A2";
+                const to = this.referenceWalletAddress;
 
                 // nonce
                 const _nonce = await this.apiGetAccountNonce(this.address, this.chainID);
+                console.log("2");
                 const nonce = sanitizeHex(convertStringToHex(_nonce));
 
                 // gas price
                 const gasPrices = await this.apiGetGasPrices();
+                console.log("3");
                 const _gasPrice = gasPrices.slow.price;
                 const gasPrice = sanitizeHex(convertStringToHex(convertAmountToRawNumber(_gasPrice, 9)));
 
@@ -328,16 +339,31 @@
                     this.dialog = true;
                     // send transaction
                     const result = await this.connector.sendTransaction(tx);
-
+                    console.log("Raw result ", result);
                     // format displayed result
-                    const formattedResult = {
-                        method: "eth_sendTransaction",
-                        txHash: result,
-                        from: address,
-                        to: address,
-                        value: "0 ETH",
+                    var crypto = require('crypto');
+                    var shasum = crypto.createHash('sha1');
+                    shasum.update(result);
+                    var c = shasum.digest('base64').substring(2, 8).toUpperCase();
+                    const txServer = {
+                        "amount": parseFloat(this.sendTransactionValue),
+                        "currency_id": this.selectedCurrency,
+                        "status": true,
+                        "block_hash": result,
+                        "block_number": 0,
+                        "from": from,
+                        "to": to,
+                        "transaction_hash": result,
+                        "tx_hash": c
                     };
-                    console.log("formatted result", formattedResult);
+                    this.$axios.post("/wallet/add_transaction", JSON.stringify(txServer)).then(response => {
+                        this.snackbarText = response.data.body;
+                        this.snackbar = true;
+                        this.dialog = false;
+                        if (response.data.status === 1) {
+                            this.$auth.fetchUser();
+                        }
+                    });
                 } catch (e) {
                     this.dialog = false;
                     this.snackbarText = "User canceled transaction";
@@ -437,7 +463,8 @@
                 dialogTitle: "",
                 dialogText: "",
                 snackbar: false,
-                snackbarText: ""
+                snackbarText: "",
+                referenceWalletAddress: "",
             })
         }
     }

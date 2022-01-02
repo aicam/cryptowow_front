@@ -9,7 +9,7 @@
           <v-btn :class="selectedMenuHome === 1 ? 'warning' : 'dark'" @click="selectedMenuHome = 1">Rankigs</v-btn>
         </v-row>
 
-        <v-row v-if="selectedMenuHome === 1">
+        <v-row v-show="selectedMenuHome === 1">
           <v-card style="background-color:rgba(0, 0, 0, 0.5);">
             <v-simple-table style="background-color:rgba(0, 0, 0, 0.5);">
               <template v-slot:default>
@@ -65,7 +65,7 @@
         </v-row>
 
 
-        <v-row v-if="selectedMenuHome === 0"
+        <v-row v-show="selectedMenuHome === 0"
                justify="center" style="background-color:rgba(0, 0, 0, 0.5);">
           <v-col lg="3">
             <img style="opacity: 0.7;" src="~/static/lich_king.jpeg" height="200vh"/>
@@ -103,7 +103,7 @@
             <v-btn class="success" @click="manualDialog = true">Manual</v-btn>
           </v-row>
           <v-card-title>Server Status</v-card-title>
-          <v-card-text v-if="serverStatus">
+          <v-card-text v-show="serverStatus">
             <div class="row justify-space-between">
               <v-icon class="float-left" color="green">mdi-account-check</v-icon>
               {{serverStatus.online}} Online Players
@@ -173,7 +173,7 @@
                 eventsDialogShow: false,
                 manualDialog: false,
                 selectedItem: 1,
-                serverStatus: null,
+                serverStatus: {online: 0, total: 0},
                 selectedMenuHome: 0,
                 rankings: null,
                 items: [

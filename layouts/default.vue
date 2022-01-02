@@ -9,7 +9,7 @@
     >
       <v-list>
         <v-list-item
-          v-if="item.show"
+          v-show="item.show"
           v-for="(item, i) in items"
           :key="i"
           :to="item.to"
@@ -27,7 +27,7 @@
           exact
         >
           <v-btn
-            v-if="isLoggedIn"
+            v-show="isLoggedIn"
             @click="logoutUser">
             Logout
           </v-btn>
