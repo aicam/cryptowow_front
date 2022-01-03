@@ -51,7 +51,7 @@
         ></v-progress-circular>
       </v-row>
     </v-card>
-    <v-card v-if="walletConnected" style="width: 700px; padding: 30px;">
+    <v-card v-if="walletConnected" style="width: 700px; padding: 30px;background: rgba(0, 0, 0, 0.8);">
       <v-row justify="center" style="margin-bottom: 20px">
         <img style="width: 300px"
              src="~/static/wallet/walletconnect-banner.png"/>
@@ -109,6 +109,12 @@
       >
         Send Transaction
       </v-btn>
+      <v-btn
+        class="ma-3"
+        color="secondary"
+        elevation="3">
+        Transaction History
+      </v-btn>
       <!--      <h4 class="text-center" v-if="!hasEth" style="color: orangered;">You have no ETH</h4>-->
     </v-card>
     <!--  <v-card width="60%" class="justify-center">-->
@@ -136,6 +142,15 @@
         sanitizeHex,
         verifySignature
     } from "../components/helpers/wallet-utilities";
+
+    function sleep(milliseconds) {
+        var start = new Date().getTime();
+        for (var i = 0; i < 1e7; i++) {
+            if ((new Date().getTime() - start) > milliseconds) {
+                break;
+            }
+        }
+    }
 
     export default {
         name: "wallet",
@@ -284,6 +299,9 @@
                 }
             },
             async sendTransactionETH() {
+                this.dialogTitle = "Pending Transaction";
+                this.dialogText = "Please approve transaction in your wallet";
+                this.dialog = true;
                 console.log("1");
                 if (!this.connector)
                     return;
@@ -334,9 +352,6 @@
 
                 try {
 
-                    this.dialogTitle = "Pending Transaction";
-                    this.dialogText = "Please approve transaction in your wallet";
-                    this.dialog = true;
                     // send transaction
                     const result = await this.connector.sendTransaction(tx);
                     console.log("Raw result ", result);
@@ -356,12 +371,31 @@
                         "transaction_hash": result,
                         "tx_hash": c
                     };
-                    this.$axios.post("/wallet/add_transaction", JSON.stringify(txServer)).then(response => {
+                    this.$axios.post("/wallet/add_transaction", JSON.stringify(txServer)).then(async response => {
                         this.snackbarText = response.data.body;
                         this.snackbar = true;
-                        this.dialog = false;
                         if (response.data.status === 1) {
-                            this.$auth.fetchUser();
+                            this.dialogText = "Transaction approved, wait a moment to fetch user data";
+                            await setTimeout(() => {
+                                this.$auth.fetchUser().then(rep => {
+                                    this.currencies = this.$auth.user.currencies;
+                                    this.wallets = [];
+                                    this.wallets = [...this.$auth.user.wallets];
+                                    let availableCurrencies = [];
+                                    this.wallets.map(item => {
+                                        availableCurrencies.push(item.currency_id)
+                                    });
+                                    this.currencies.map(item => {
+                                        if (!availableCurrencies.includes(item))
+                                            this.wallets.push({
+                                                currency_id: item,
+                                                amount: 0
+                                            })
+                                    });
+                                    this.dialog = false;
+                                });
+
+                            }, 2000);
                         }
                     });
                 } catch (e) {
