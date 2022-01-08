@@ -1,5 +1,6 @@
 <template>
   <v-row style="align-items: center; justify-content: center;margin-top: 40px">
+    <!-- Buy crypto dialog -->
     <v-dialog v-model="dialog"
               width="500">
       <v-card style="padding-bottom: 20px">
@@ -12,6 +13,23 @@
 
         <img src="~/static/pending_transaction.gif"
              style="display: block;width: 128px;margin-left: auto;margin-right: auto;"/>
+      </v-card>
+    </v-dialog>
+
+    <!-- transaction history dialog -->
+    <v-dialog v-model="thDialog"
+              width="700">
+      <v-card style="padding: 40px">
+        <h2 class="text-center" v-if="transactionHistoryLoading">Getting info</h2>
+        <v-data-table
+          :headers="[
+          {text: 'Amount', sortable: false, value: 'amount'}
+          ,{text: 'Date', value: 'CreatedAt'}
+          ,{text: 'Currency ID', value: 'currency_id'}
+          ,{text: 'Transaction Hash', sortable: false, align: 'center', value: 'transaction_hash'}
+          ,{text: 'Wallet Address', value: 'from'}]"
+          :items="transactionHistory"
+        ></v-data-table>
       </v-card>
     </v-dialog>
 
@@ -37,6 +55,14 @@
       </v-card-title>
       <v-card-text class="text-center"><h3>Please connect your wallet.</h3></v-card-text>
       <v-row style="align-items: center; justify-content: center;margin-top: 40px">
+        <v-btn
+          class="ma-3"
+          color="secondary"
+          elevation="3"
+          @click="getTransactionHistory"
+        >
+          Transaction History
+        </v-btn>
         <v-btn
           v-if="!isDisconnectingPrograss"
           class="success"
@@ -79,7 +105,7 @@
         </v-col>
       </v-row>
       <v-divider style="margin-bottom: 25px;"></v-divider>
-      <h2 class="text-center">Add balance</h2>
+      <h2 class="text-center">Add Balance</h2>
       <v-row>
         <v-col lg="6">
           <v-text-field
@@ -186,6 +212,14 @@
             }
         },
         methods: {
+            getTransactionHistory() {
+                this.thDialog = true;
+                this.transactionHistoryLoading = true;
+                this.$axios.get("/wallet/transaction_log").then(response => {
+                    this.transactionHistoryLoading = false;
+                    this.transactionHistory = response.data
+                })
+            },
             async connect() {
 
                 // check if already connected
@@ -499,6 +533,9 @@
                 snackbar: false,
                 snackbarText: "",
                 referenceWalletAddress: "",
+                transactionHistory: [],
+                transactionHistoryLoading: true,
+                thDialog: false,
             })
         }
     }

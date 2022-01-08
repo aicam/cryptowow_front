@@ -138,6 +138,12 @@
                         show: this.$auth.loggedIn
                     },
                     {
+                      icon: 'mdi-cash-fast',
+                      title: 'Withdrawal',
+                      to: '/request_withdraw',
+                      show: this.$auth.loggedIn
+                    },
+                    {
                         icon: 'mdi-account-arrow-left',
                         title: 'Login',
                         to: '/login',

@@ -136,7 +136,7 @@
           justify="space-between"
         >
           <h3>{{wallet.currency_id}}</h3>
-          <h3>{{wallet.amount}}</h3>
+          <h3>{{wallet.amount.toFixed(6)}}</h3>
         </v-row>
       </v-card>
     </v-col>
