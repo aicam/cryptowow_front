@@ -19,16 +19,21 @@
               <template v-slot:selection="{item, index}">
                 {{item}}
                 <v-divider></v-divider>
+                {{parseFloat(walletMap[item]).toFixed(5)}}
                 <v-img max-width="48px" :src="require(`~/static/currencies/${item}.png`)"/>
               </template>
               <template v-slot:item="{item}">
                 {{item}}
                 <v-divider></v-divider>
+                {{parseFloat(walletMap[item]).toFixed(5)}}
                 <v-img max-width="48px" :src="require(`~/static/currencies/${item}.png`)"/>
               </template>
             </v-select>
           </v-col>
         </v-row>
+        <p>You will receive {{parseFloat(submitAmount).toString() === submitAmount.toString() ? (9/10 *
+          parseFloat(submitAmount)).toFixed(4) : 0}}
+          {{` ${submitCurrency}`}}</p>
         <v-divider></v-divider>
         <h3>Wallet address</h3>
         <v-text-field
@@ -47,7 +52,9 @@
           <v-btn
             block
             style="background: linear-gradient(45deg, #0B636E, #6E0F64)"
-          >Submit</v-btn>
+            @click="submitWithdrawal"
+          >Submit
+          </v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -85,6 +92,22 @@
         </v-btn>
       </v-row>
     </v-card>
+
+
+    <v-snackbar
+      v-model="snackbar">
+      {{snackbarText}}
+      <template v-slot:action="{ attrs }">
+        <v-btn
+          color="red"
+          text
+          v-bind="attrs"
+          @click="snackbar = false"
+        >
+          Close
+        </v-btn>
+      </template>
+    </v-snackbar>
   </v-row>
 </template>
 
@@ -107,9 +130,46 @@
                         amount: 0
                     })
             });
+            this.wallets.map(wallet => {
+                this.walletMap[wallet.currency_id] = wallet.amount
+            });
+        },
+        methods: {
+            submitWithdrawal() {
+                let checked = true;
+                this.wallets.map(wallet => {
+                    if (wallet.currency_id === this.submitCurrency) {
+                        if (wallet.amount < this.submitAmount) {
+                            this.snackbarText = "Not enough balance!";
+                            this.snackbar = true;
+                            checked = false;
+                        }
+                    }
+                });
+                if (this.submitCurrency === 'CWT') {
+                    this.snackbarText = "CWT can not be withdrawn!";
+                    this.snackbar = true;
+                    checked = false;
+                }
+                if (!checked)
+                    return
+                this.$axios.post("/wallet/request_withdraw", JSON.stringify({
+                    "amount": parseFloat(this.submitAmount),
+                    "currency_id": this.submitCurrency,
+                    "wallet_address": this.submitWalletAddress,
+                    "wallet_app": this.submitWalletApp,
+                    "note": this.submitNote
+                })).then(response => {
+                    if (response.data.status === 1)
+                        this.$auth.fetchUser();
+                    this.snackbarText = response.data.body;
+                    this.snackbar = true;
+                    this.submitDialog = false;
+                }).catch(err => console.log(err));
+            }
         },
         data() {
-            return({
+            return ({
                 submitDialog: false,
                 submitAmount: 0,
                 submitNote: "For ex. I need this money until next week",
@@ -117,7 +177,10 @@
                 submitWalletAddress: '',
                 submitWalletApp: '',
                 wallets: [],
-                currencies: []
+                currencies: [],
+                walletMap: {},
+                snackbar: false,
+                snackbarText: ""
             })
         }
     }
