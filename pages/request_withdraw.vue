@@ -1,5 +1,7 @@
 <template>
   <v-row justify="center" style="margin-top: 50px;">
+
+
     <v-dialog
       v-model="submitDialog"
       transition="dialog-bottom-transition">
@@ -60,6 +62,23 @@
     </v-dialog>
 
 
+    <v-dialog v-model="hDialog"
+              width="700">
+      <v-card style="padding: 40px">
+        <v-data-table
+          :headers="[
+          {text: 'Amount', sortable: false, value: 'amount'}
+          ,{text: 'Date', value: 'CreatedAt'}
+          ,{text: 'Currency ID', sortable: false, value: 'currency_id'}
+          ,{text: 'Step', value: 'pending_stage', width: '250px'}
+          ,{text: 'Wallet Address', sortable: false, value: 'wallet_address'}
+          ,{text: 'Transaction Hash', sortable: false, align: 'center', value: 'tx'}]"
+          :items="history"
+        ></v-data-table>
+      </v-card>
+    </v-dialog>
+
+
     <v-card style="padding: 50px;background: rgba(0, 0, 0, 0.7);" class="text-center">
       <h1 class="font-weight-bold">Withdrawal</h1>
       <v-row justify="center">
@@ -87,6 +106,7 @@
         </v-btn>
         <v-btn
           color="#B7BE0D"
+          @click="getHistory"
         >
           History
         </v-btn>
@@ -166,6 +186,23 @@
                     this.snackbar = true;
                     this.submitDialog = false;
                 }).catch(err => console.log(err));
+            },
+            getHistory() {
+                this.hDialog = true;
+                this.$axios.get("/wallet/return_withdrawal").then(response => {
+                    const hs = response.data.body;
+                    for (let i = 0; i < hs.length; i++) {
+                        if (hs[i].pending_stage === 0)
+                            hs[i].pending_stage = "Request sent, waiting for GM";
+                        if (hs[i].pending_stage === 1)
+                            hs[i].pending_stage = "Transaction done, pending";
+                        if (hs[i].pending_stage === 2)
+                            hs[i].pending_stage = "Finished, check tx hash";
+                        if (hs[i].pending_stage === -1)
+                            hs[i].pending_stage = "Withdrawal refused";
+                    }
+                    this.history = hs;
+                })
             }
         },
         data() {
@@ -180,7 +217,9 @@
                 currencies: [],
                 walletMap: {},
                 snackbar: false,
-                snackbarText: ""
+                snackbarText: "",
+                history: [],
+                hDialog: false,
             })
         }
     }
