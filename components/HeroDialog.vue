@@ -439,7 +439,7 @@
                             });
                         return aInfo
                     };
-                    if (!this.achievements)
+                    if (this.achievements.length === 0)
                         for (let i = 0; i < this.achievementsIDs.length; i++)
                             this.achievements.push(await parseAchievementID(this.achievementsIDs[i]));
                     this.achievementLoading = false;
@@ -506,7 +506,7 @@
                 companions: [],
                 companionsData: [],
                 companionsLoading: true,
-                corsanywhereHost: "194.5.192.243",
+                corsanywhereHost: "localhost",
             }
         },
     }

@@ -208,6 +208,8 @@
             </tbody>
           </template>
         </v-simple-table>
+
+        <!-- Gifts section -->
         <h1>Active Gifts</h1>
         <h3 v-if="!activeGifts.length">You have no active gift currently</h3>
         <v-alert
@@ -220,13 +222,41 @@
         >
           <v-row justify="space-around" style="margin-top: 1px;">
             <v-icon large color="#D013C5">mdi-gift</v-icon>
-            <h3>{{gift.description}}</h3>
+            <h3>{{gift.title}}</h3>
+            <v-tooltip bottom max-width="200px">
+              <template v-slot:activator="{on, attrs}">
+                <v-icon v-on="on" v-bind="attrs" large color="red">mdi-help-circle</v-icon>
+              </template>
+              <p style="color: black;font-size: 15px;font-weight: bold">{{gift.description}}</p>
+            </v-tooltip>
             <h4>{{gift.condition}}</h4>
           </v-row>
         </v-alert>
         <h1>Used Gifts</h1>
         <h3 v-if="!usedGifts.length">You have no used gift currently</h3>
+        <v-alert
+          v-if="usedGifts.length"
+          v-for="(gift, i) in usedGifts"
+          :key="i"
+          border="top"
+          color="blue-grey"
+          dark
+        >
+          <v-row justify="space-around" style="margin-top: 1px;">
+            <v-icon large color="#D013C5">mdi-gift</v-icon>
+            <h3>{{gift.title}}</h3>
+            <v-tooltip bottom max-width="200px">
+              <template v-slot:activator="{on, attrs}">
+                <v-icon v-on="on" v-bind="attrs" large color="red">mdi-help-circle</v-icon>
+              </template>
+              <p style="color: black;font-size: 15px;font-weight: bold">{{`Gift used for ${gift.used_hero_name}`}}</p>
+            </v-tooltip>
+            <h4>{{gift.condition}}</h4>
+          </v-row>
+        </v-alert>
         <!--    <a rel="item=28288">asd</a>-->
+
+        <!-- /Gifts section -->
       </v-card>
     </v-col>
     <v-col md="3">
@@ -264,6 +294,7 @@
         <v-btn
           v-if="activeGifts"
           v-for="(gift, i) in activeGifts"
+          @click="useGift(gift.gift_id)"
           :key="i">
           {{gift.action + " " + heroSelectedName}}
         </v-btn>
@@ -293,6 +324,24 @@
             }]
         },
         methods: {
+            useGift(gift_id) {
+              this.$axios.get("/gift/" + gift_id + "/" + this.heroSelectedName).then(response => {
+                  this.snackbarText = response.data.body;
+                  this.snackbar = true;
+                  if (response.data.status === 1) {
+                      this.$auth.fetchUser().then(rep => {
+                          this.activeGifts = [];
+                          this.usedGifts = [];
+                          this.$auth.user.gifts.map(item => {
+                              if (item.used)
+                                  this.usedGifts.push(item);
+                              else
+                                  this.activeGifts.push(item);
+                          });
+                      })
+                  }
+              });
+            },
             closeHeroDialog: function () {
                 this.dialog = false;
             },
