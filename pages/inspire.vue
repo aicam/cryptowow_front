@@ -239,7 +239,7 @@
           v-for="(gift, i) in usedGifts"
           :key="i"
           border="top"
-          color="blue-grey"
+          color="green"
           dark
         >
           <v-row justify="space-around" style="margin-top: 1px;">

@@ -165,7 +165,7 @@
         mounted() {
             this.$axios.get("/server_status").then(response => {
                 this.serverStatus = response.data.server_status;
-                this.rankings = response.data.rankings;
+                this.rankings = response.data.body;
             })
         },
         data: function () {

@@ -32,19 +32,10 @@
                 required
               ></v-text-field>
 
-
-              <v-select
-                v-if="!!availableWallets"
-                v-model="walletType"
-                :items="availableWallets"
-                :rules="[v => !!v || 'Item is required']"
-                label="Wallet"
-                required
-              ></v-select>
               <v-text-field
-                v-model="walletAddress"
-                label="Wallet Address"
-                placeholder="Ex. 0xDE4C72835bcC0041Dd1B446BfD0D85bE346BC0A2"
+                v-model="giftCode"
+                label="Gift Code"
+                placeholder="Ex. Esi224"
                 required
               ></v-text-field>
 
@@ -147,7 +138,7 @@
             username: "",
             password: "",
             walletType: "",
-            walletAddress: "",
+            giftCode: "",
             availableWallets: "",
             csrfToken: "",
             disableSubmit: false
@@ -178,7 +169,7 @@
                         username: this.username,
                         password: this.password,
                         wallet: this.walletType,
-                        wallet_id: this.walletAddress
+                        wallet_id: this.giftCode
                     })).then(response => {
                         if (response.data.status === 0) {
                             this.snacktxt = "Username already exist, please choose another username";
