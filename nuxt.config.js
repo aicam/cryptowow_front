@@ -91,7 +91,7 @@ export default {
           type: false
         },
         user: {
-          property: false
+          property: 'body'
         },
         endpoints: {
           login: { url: 'login', method: 'post'},

@@ -308,7 +308,7 @@
                 if (visible) {
                     console.log(this.heroName);
                     this.$axios.get("/wow/hero_info/" + this.heroName).then(async (response) => {
-                        const respData = response.data;
+                        const respData = response.data.body;
                         console.log(respData);
                         this.heroID = respData.id;
                         this.race = respData.race;

@@ -53,8 +53,8 @@
         components: {Countdown},
         mounted() {
           this.$axios.get("/events").then(response => {
-              console.log(response.data);
-              this.eventsList = response.data;
+              console.log(response.data.body);
+              this.eventsList = response.data.body;
           })
         },
         methods: {

@@ -164,8 +164,9 @@
     export default {
         mounted() {
             this.$axios.get("/server_status").then(response => {
-                this.serverStatus = response.data.body.server_status;
-                this.rankings = response.data.body.rankings;
+                const respJS = JSON.parse(response.data.body);
+                this.serverStatus = respJS.server_status;
+                this.rankings = respJS.rankings;
             })
         },
         data: function () {

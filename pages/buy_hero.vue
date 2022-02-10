@@ -198,7 +198,7 @@
         mounted() {
             console.log(this.$auth.user.username);
             this.$axios.get("/wow/selling_heros").then(response => {
-                this.sellingHeros = response.data;
+                this.sellingHeros = response.data.body;
             });
         },
         methods: {
