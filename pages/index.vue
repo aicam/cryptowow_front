@@ -1,7 +1,7 @@
 <template>
   <v-row>
     <ManualDialog :dialog="manualDialog" v-on:close-func="manualDialog = false"/>
-    <EventsDialog :dialog="eventsDialogShow" @clicked="this.closeDialog"/>
+    <EventsDialog :dialog="eventsDialogShow" @clicked="eventsDialogShow = false"/>
     <v-row>
       <v-col lg="9">
         <v-row justify="center" style="margin-top: 40px;margin-bottom: 3px;">
@@ -147,27 +147,17 @@
   .card_title {
     font-size: 30px;
   }
-
-  .banner_bg {
-    position: absolute;
-    top: 0;
-    left: 0;
-    background-size: cover;
-    background-color: red;
-    transform: scale(1.1);
-  }
 </style>
 <script>
     import EventsDialog from "../components/EventsDialog";
     import ManualDialog from "../components/ManualDialog";
 
     export default {
-        mounted() {
-            this.$axios.get("/server_status").then(response => {
-                const respJS = JSON.parse(response.data.body);
-                this.serverStatus = respJS.server_status;
-                this.rankings = respJS.rankings;
-            })
+        created() {
+            this.$store.dispatch('static/getHomePageInfo').then(
+                (result) => {
+                    this.serverStatus = result[0]; this.rankings = result[1];}
+            )
         },
         data: function () {
             return ({
@@ -185,9 +175,6 @@
             })
         },
         methods: {
-            closeDialog: function () {
-                this.eventsDialogShow = false
-            }
         },
         components: {ManualDialog, EventsDialog},
     }

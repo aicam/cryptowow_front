@@ -36,7 +36,10 @@
                 {{event.conditions}}
               </p>
               <p style="font-size: 25px; color: black;">{{event.description}}</p>
-              <p style="font-size: 25px;"><v-icon x-large>mdi-gift</v-icon> {{event.gift}}</p>
+              <p style="font-size: 25px;">
+                <v-icon x-large>mdi-gift</v-icon>
+                {{event.gift}}
+              </p>
               <Countdown :end="getCountdownTime(event.end_date)" style="color: orangered;"></Countdown>
             </v-col>
           </v-row>
@@ -52,10 +55,9 @@
         props: ['dialog'],
         components: {Countdown},
         mounted() {
-          this.$axios.get("/events").then(response => {
-              console.log(response.data.body);
-              this.eventsList = response.data.body;
-          })
+            this.$store.dispatch("static/getEvents").then(result => {
+                this.eventsList = result.data.body;
+            })
         },
         methods: {
             closeDia() {
@@ -63,7 +65,7 @@
                 this.$emit('clicked');
                 // this.dialog = false
             },
-            getCountdownTime(newTime){
+            getCountdownTime(newTime) {
                 console.log(newTime);
                 newTime = new Date(newTime);
                 console.log(newTime);
