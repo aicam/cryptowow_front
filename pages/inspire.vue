@@ -325,7 +325,7 @@
         },
         methods: {
             useGift(gift_id) {
-              this.$store.dispatch("wowdb/useGift", gift_id, this.heroSelectedName).then(response => {
+              this.$store.dispatch("wowdb/useGift", {gift_id, heroSelectedName: this.heroSelectedName}).then(response => {
                   this.snackbarText = response.data.body;
                   this.snackbar = true;
                   if (response.data.status === 1) {

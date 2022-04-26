@@ -151,6 +151,7 @@
                     this.disableSubmit = true;
                 } else {
                     this.csrfToken = response.data.body;
+                    console.log("CSRF-Token ", this.csrfToken);
                 }
             })
         },
