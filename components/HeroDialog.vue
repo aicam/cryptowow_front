@@ -338,7 +338,7 @@
                             this.backgroundImage = require("~/static/hero_dialogs/orgrimmar_blur.png");
                             this.horde = true;
                         } else {
-                            this.backgroundImage = require("~/static/hero_dialogs/stormwind_blur.png");
+                            this.backgroundImage =   require("~/static/hero_dialogs/stormwind_blur.png");
                             this.horde = false;
                         }
 

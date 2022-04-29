@@ -1,6 +1,7 @@
 <template>
   <v-dialog
     v-model="dialog"
+    @click:outside="$emit('close-func')"
     width="600">
     <v-card>
       <v-card-title style="padding: 20px">How to connect to CryptoWoW server?</v-card-title>
@@ -19,9 +20,12 @@
         </v-row>
         <v-row>
           <h3>After downloading the world of warcraft client you need to set server address in your wow.</h3>
-          <h3>You need to replace &nbsp;</h3><p style="color: orange">/Data/enUS/realmlist.txt</p>
-          <h3> &nbsp;and &nbsp;</h3><p style="color: orange">/WTF/config.txt</p>
-          <h3> &nbsp; with &nbsp;</h3><p style="color: orange">set realmlist wow.cryptowow.com</p>
+          <h3>You need to replace &nbsp;</h3>
+          <p style="color: orange">/Data/enUS/realmlist.txt</p>
+          <h3> &nbsp;and &nbsp;</h3>
+          <p style="color: orange">/WTF/config.txt</p>
+          <h3> &nbsp; with &nbsp;</h3>
+          <p style="color: orange">set realmlist wow.cryptowow.com</p>
         </v-row>
         <v-row>
           <h3>Finally you can open wow.exe to play in CryptoWoW server.</h3>
@@ -40,10 +44,10 @@
 </template>
 
 <script>
-    export default {
-        name: "ManualDialog",
-        props: ['dialog']
-    }
+export default {
+  name: "ManualDialog",
+  props: ['dialog'],
+}
 </script>
 
 <style scoped>

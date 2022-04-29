@@ -1,7 +1,7 @@
 <template>
   <v-app dark>
     <v-navigation-drawer
-      v-model="drawer"
+      v-model="drawerShow"
       :mini-variant="miniVariant"
       :clipped="clipped"
       fixed
@@ -26,11 +26,16 @@
         <v-list-item
           exact
         >
-          <v-btn
-            v-show="isLoggedIn"
-            @click="logoutUser">
-            Logout
-          </v-btn>
+          <template v-slot:append>
+            <div class="pa-2">
+              <v-btn
+                block
+                v-show="isLoggedIn"
+                @click="logoutUser">
+                Logout
+              </v-btn>
+            </div>
+          </template>
         </v-list-item>
       </v-list>
     </v-navigation-drawer>
@@ -39,17 +44,17 @@
       fixed
       app
     >
-      <v-app-bar-nav-icon @click.stop="drawer = !drawer"/>
+      <v-app-bar-nav-icon @click="drawerShow = !drawerShow"/>
       <v-btn
         icon
         @click.stop="miniVariant = !miniVariant"
       >
         <v-icon>mdi-{{ `chevron-${miniVariant ? 'right' : 'left'}` }}</v-icon>
       </v-btn>
-      <v-switch
+
 
       <v-spacer/>
-      <img src="~/static/title_banner.png" height="110px" style="margin-top: 40px;"/>
+      <img src="~/static/logo.png" height="150px" style="margin-top: 70px;"/>
       <v-spacer/>
 
     </v-app-bar>
@@ -80,87 +85,91 @@
   </v-app>
 </template>
 <style>
-  .bg {
-    width: 100%;
-    height: 100%;
-    position: absolute;
-    top: 0;
-    left: 0;
-    background: url('https://wallpapercave.com/wp/HWtnBHH.jpg') no-repeat center center;
-    background-size: cover;
-    transform: scale(1.1);
-  }
+.bg {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  background: url('https://wallpapercave.com/wp/HWtnBHH.jpg') no-repeat center center;
+  background-size: cover;
+  transform: scale(1.1);
+}
 </style>
 <script>
-    export default {
-        // computed() {
-        //     // $colorMode.preference = color
-        // },
-        methods: {
-            logoutUser: function () {
-                this.$auth.logout();
-                window.location.href = '/';
-            },
-            // isLoggedIn: function () {
-            //     console.log('checked ' + this.$auth.loggedIn);
-            //     return this.$auth.loggedIn
-            // }
+export default {
+  // computed() {
+  //     // $colorMode.preference = color
+  // },
+  methods: {
+    logoutUser: function () {
+      this.$auth.logout();
+      window.location.href = '/';
+    },
+    // isLoggedIn: function () {
+    //     console.log('checked ' + this.$auth.loggedIn);
+    //     return this.$auth.loggedIn
+    // }
+  },
+  data() {
+    return {
+      isLoggedIn: this.$auth.loggedIn,
+      clipped: false,
+      drawerShow: false,
+      fixed: false,
+      items: [
+        {
+          icon: 'mdi-apps',
+          title: 'Welcome',
+          to: '/',
+          show: true,
         },
-        data() {
-            return {
-                isLoggedIn: this.$auth.loggedIn,
-                clipped: false,
-                drawer: false,
-                fixed: false,
-                items: [
-                    {
-                        icon: 'mdi-apps',
-                        title: 'Welcome',
-                        to: '/',
-                        show: true,
-                    },
-                    {
-                        icon: 'mdi-chart-bubble',
-                        title: 'Dashboard',
-                        to: '/inspire',
-                        show: this.$auth.loggedIn
-                    },
-                    {
-                        icon: 'mdi-account-cash',
-                        title: 'Buy Hero',
-                        to: '/buy_hero',
-                        show: this.$auth.loggedIn
-                    },
-                    {
-                        icon: 'mdi-wallet',
-                        title: 'Wallet',
-                        to: '/wallet',
-                        show: this.$auth.loggedIn
-                    },
-                    {
-                      icon: 'mdi-cash-fast',
-                      title: 'Withdrawal',
-                      to: '/request_withdraw',
-                      show: this.$auth.loggedIn
-                    },
-                    {
-                        icon: 'mdi-account-arrow-left',
-                        title: 'Login',
-                        to: '/login',
-                        show: !this.$auth.loggedIn
-                    },
-                    {
-                        icon: "mdi-account-plus",
-                        title: 'Sign Up',
-                        to: '/register',
-                        show: !this.$auth.loggedIn
-                    }
-                ],
-                miniVariant: false,
-                right: true,
-                rightDrawer: false,
-                title: 'Vuetify.js'
-            }
+        {
+          icon: 'mdi-chart-bubble',
+          title: 'Dashboard',
+          to: '/inspire',
+          show: this.$auth.loggedIn
+        },
+        {
+          icon: 'mdi-account-cash',
+          title: 'Buy Hero',
+          to: '/buy_hero',
+          show: this.$auth.loggedIn
+        },
+        {
+          icon: 'mdi-wallet',
+          title: 'Wallet',
+          to: '/wallet',
+          show: this.$auth.loggedIn
+        },
+        {
+          icon: 'mdi-cash-fast',
+          title: 'Withdrawal',
+          to: '/request_withdraw',
+          show: this.$auth.loggedIn
+        },
+        {
+          icon: 'mdi-account-arrow-left',
+          title: 'Login',
+          to: '/login',
+          show: !this.$auth.loggedIn
+        },
+        {
+          icon: "mdi-account-plus",
+          title: 'Sign Up',
+          to: '/register',
+          show: !this.$auth.loggedIn
         }
+      ],
+      miniVariant: false,
+      right: true,
+      rightDrawer: false,
     }
+  },
+  watch: {
+    drawerShow:function (newVal, old) {
+      console.log("Found new val ", newVal);
+    }
+  }
+}
 </script>
