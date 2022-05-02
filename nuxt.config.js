@@ -9,13 +9,13 @@ export default {
       lang: 'en'
     },
     meta: [
-      { charset: 'utf-8' },
-      { name: 'viewport', content: 'width=device-width, initial-scale=1' },
-      { hid: 'description', name: 'description', content: '' },
-      { name: 'format-detection', content: 'telephone=no' }
+      {charset: 'utf-8'},
+      {name: 'viewport', content: 'width=device-width, initial-scale=1'},
+      {hid: 'description', name: 'description', content: ''},
+      {name: 'format-detection', content: 'telephone=no'}
     ],
     link: [
-      { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' }
+      {rel: 'icon', type: 'image/x-icon', href: '/favicon.ico'}
     ]
   },
 
@@ -25,8 +25,7 @@ export default {
   ],
 
   // Plugins to run before rendering page: https://go.nuxtjs.dev/config-plugins
-  plugins: [
-  ],
+  plugins: [],
 
   // Auto import components: https://go.nuxtjs.dev/config-components
   components: true,
@@ -56,50 +55,54 @@ export default {
   },
   // Vuetify module configuration: https://go.nuxtjs.dev/config-vuetify
   vuetify: {
-    customVariables: ['~/assets/variables.scss'],
-    theme: {
-      dark: true,
-      themes: {
-        dark: {
-          primary: '#D06613',//colors.blue.darken2,
-          accent: colors.grey.darken3,
-          secondary: colors.amber.darken3,
-          info: colors.teal.lighten1,
-          warning: colors.amber.base,
-          error: colors.deepOrange.accent4,
-          success: colors.green.accent3
+    treeShake: true,
+    defaultAssets: {
+      font: {
+        family: mw
+      },
+      customVariables: ['~/assets/variables.scss'],
+      theme: {
+        dark: true,
+        themes: {
+          dark: {
+            primary: '#D06613',//colors.blue.darken2,
+            accent: colors.grey.darken3,
+            secondary: colors.amber.darken3,
+            info: colors.teal.lighten1,
+            warning: colors.amber.base,
+            error: colors.deepOrange.accent4,
+            success: colors.green.accent3
+          }
         }
       }
-    }
-  },
-
-  // Build Configuration: https://go.nuxtjs.dev/config-build
-  build: {
-  },
-  axios: {
-    baseURL: 'http://192.168.1.111:4300/'
-  },
-
-  auth: {
-    redirect: {
-      home: false
     },
-    strategies: {
-      local: {
-        token: {
-          property: 'body',
-          type: false
-        },
-        user: {
-          property: 'body'
-        },
-        endpoints: {
-          login: { url: 'login', method: 'post'},
-          user: {url: 'wow/get_info', method: 'get'},
-          // user: { url: 'me', method: 'get', propertyName: 'data' },
-          logout: false
+
+    // Build Configuration: https://go.nuxtjs.dev/config-build
+    build: {},
+    axios: {
+      baseURL: 'http://192.168.1.111:4300/'
+    },
+
+    auth: {
+      redirect: {
+        home: false
+      },
+      strategies: {
+        local: {
+          token: {
+            property: 'body',
+            type: false
+          },
+          user: {
+            property: 'body'
+          },
+          endpoints: {
+            login: {url: 'login', method: 'post'},
+            user: {url: 'wow/get_info', method: 'get'},
+            // user: { url: 'me', method: 'get', propertyName: 'data' },
+            logout: false
+          }
         }
       }
     }
   }
-}

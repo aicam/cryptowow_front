@@ -446,7 +446,6 @@
             this.$auth.user.selling_heros.map(item => {
                 this.currentSellingHeros.push(item.hero_name);
             })
-            // console.log(window.WH);
         },
         data() {
             return ({

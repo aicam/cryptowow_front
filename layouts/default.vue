@@ -54,7 +54,7 @@
     <v-main>
       <span class="bg"></span>
       <v-container>
-        <Nuxt/>
+        <Nuxt style="margin-top: 40px"/>
       </v-container>
     </v-main>
     <v-navigation-drawer

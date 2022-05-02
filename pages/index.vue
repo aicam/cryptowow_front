@@ -4,7 +4,7 @@
     <EventsDialog :dialog="eventsDialogShow" @clicked="eventsDialogShow = false"/>
     <v-row>
       <v-col lg="9">
-        <v-row justify="center" style="margin-top: 40px;margin-bottom: 3px;">
+        <v-row justify="center" style="margin-top: 30px; margin-bottom: 3px;">
           <v-btn :class="selectedMenuHome === 0 ? 'warning' : 'dark'" @click="selectedMenuHome = 0">Home</v-btn>
           <v-btn :class="selectedMenuHome === 1 ? 'warning' : 'dark'" @click="selectedMenuHome = 1">Rankigs</v-btn>
         </v-row>
