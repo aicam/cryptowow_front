@@ -45,13 +45,6 @@
       app
     >
       <v-app-bar-nav-icon @click="drawerShow = !drawerShow"/>
-      <v-btn
-        icon
-        @click.stop="miniVariant = !miniVariant"
-      >
-        <v-icon>mdi-{{ `chevron-${miniVariant ? 'right' : 'left'}` }}</v-icon>
-      </v-btn>
-
 
       <v-spacer/>
       <img src="~/static/logo.png" height="150px" style="margin-top: 70px;"/>
