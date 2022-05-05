@@ -7,11 +7,6 @@
   --border-color: #ddd;
 }
 
-@font-face {
-  font-family: mw;
-  src: url('Tapestry-Regular.ttf');
-}
-
 .dark-mode {
   --color: #ebf4f1;
   --color-primary: #41b38a;
