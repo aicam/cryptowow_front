@@ -1,13 +1,14 @@
 import colors from 'vuetify/es5/util/colors'
 
 export default {
+  loading: '~/components/LoadingBar',
   server: {
     host: '0.0.0.0'
   },
   // Global page headers: https://go.nuxtjs.dev/config-head
   head: {
-    titleTemplate: '%s - cryptowow_front',
-    title: 'CryptoWoW server',
+    titleTemplate: '%s - DecentraWoW',
+    title: 'Decentralized WoW',
     htmlAttrs: {
       lang: 'en'
     },

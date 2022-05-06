@@ -2,10 +2,9 @@
   <v-app dark>
     <v-navigation-drawer
       v-model="drawerShow"
-      :mini-variant="miniVariant"
-      :clipped="clipped"
       fixed
       app
+      disable-resize-watcher
     >
       <v-list>
         <v-list-item
@@ -47,7 +46,7 @@
       <v-app-bar-nav-icon @click="drawerShow = !drawerShow"/>
 
       <v-spacer/>
-      <img src="~/static/logo.png" height="150px" style="margin-top: 70px;"/>
+      <img src="~/static/logo-min.png" height="150px" style="margin-top: 70px;"/>
       <v-spacer/>
 
     </v-app-bar>
@@ -84,7 +83,7 @@
   position: absolute;
   top: 0;
   left: 0;
-  background: url('https://wallpapercave.com/wp/HWtnBHH.jpg') no-repeat center center;
+  background: url('~/static/wallpaper.jpg') no-repeat center center;
   background-size: cover;
   transform: scale(1.1);
 }
