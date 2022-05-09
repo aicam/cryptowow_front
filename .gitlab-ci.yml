@@ -1,5 +1,6 @@
 build:
   script:
+    - ". ~/.nvm/nvm.sh"
     - nvm use 12.22.10
     - npm install
     - npm run build
