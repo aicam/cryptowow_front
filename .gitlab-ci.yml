@@ -3,6 +3,7 @@ build:
     - ". ~/.nvm/nvm.sh"
     - nvm use 12.22.10
     - npm install
+    - npm audit fix
     - npm run build
     - npm run generate
     - cp -r dist/* /var/www/html/

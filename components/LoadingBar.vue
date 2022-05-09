@@ -47,7 +47,7 @@ export default {
   justify-content: center;
   align-items: center;
   text-align: center;
-  background-color: white;
+  background-color: black;
   z-index: 10;
 }
 
