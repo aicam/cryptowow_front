@@ -95,7 +95,7 @@
             <v-card style="padding: 25px;">
               <p class="font-weight-bold card_title"> Play World of Warcraft with Cryptocurrency Payment </p>
               <p>Are you one of old fans of World of Warcraft? if yes you sure know Lich King and definitely know about
-                cryptocurrencies and Bitcoin.
+                cryptocurrencies.
                 This server provides cash out system by cryptocurrency, so you can play and earn at the same time. Our options are being
                 developed and the final goal is to create a decentralized world of warcraft server (DecentraWoW).</p>
               <v-spacer/>
