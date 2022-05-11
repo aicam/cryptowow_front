@@ -4,7 +4,7 @@
     @click:outside="$emit('close-func')"
     width="600">
     <v-card>
-      <v-card-title style="padding: 20px">How to connect to CryptoWoW server?</v-card-title>
+      <v-card-title style="padding: 20px">How to connect to DecentraWoW server?</v-card-title>
       <v-card-text>
         <v-row>
           <h3>First, you need to download world of warcraft client game with respect to patch you want to play.
