@@ -80,7 +80,7 @@ export default {
   // Build Configuration: https://go.nuxtjs.dev/config-build
   build: {},
   axios: {
-    baseURL: 'http://192.168.1.111:4300/'
+    baseURL: 'http://decentrawow.com:4300/'
   },
 
   auth: {

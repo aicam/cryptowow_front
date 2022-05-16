@@ -506,7 +506,7 @@
                 companions: [],
                 companionsData: [],
                 companionsLoading: true,
-                corsanywhereHost: "localhost",
+                corsanywhereHost: "decentrawow.com",
             }
         },
     }

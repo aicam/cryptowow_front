@@ -25,16 +25,14 @@
         <v-list-item
           exact
         >
-          <template v-slot:append>
-            <div class="pa-2">
-              <v-btn
-                block
-                v-show="isLoggedIn"
-                @click="logoutUser">
-                Logout
-              </v-btn>
-            </div>
-          </template>
+          <div class="pa-2">
+            <v-btn
+              block
+              v-show="isLoggedIn"
+              @click="logoutUser">
+              Logout
+            </v-btn>
+          </div>
         </v-list-item>
       </v-list>
     </v-navigation-drawer>
@@ -159,7 +157,7 @@ export default {
     }
   },
   watch: {
-    drawerShow:function (newVal, old) {
+    drawerShow: function (newVal, old) {
       console.log("Found new val ", newVal);
     }
   }
