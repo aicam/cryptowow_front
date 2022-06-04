@@ -3,7 +3,7 @@
     <v-snackbar
       v-model="snackbar"
     >
-      {{snacktext}}
+      {{ snacktext }}
 
       <template v-slot:action="{ attrs }">
         <v-btn
@@ -19,7 +19,7 @@
     <!-- /Snack bars -->
 
     <v-row align="center" justify="center">
-      <v-card style="padding: 50px;" >
+      <v-card style="padding: 50px;">
         <img src="~/static/login_wallpaper.jpg" style="width: 500px;"/>
         <v-form
           ref="form"
@@ -73,59 +73,65 @@
 </template>
 
 <script>
-    export default {
-        name: "login",
-        data: () => ({
-            loginStarted: false,
-            snackbar: false,
-            snacktext: "Enter your username",
-            valid: true,
-            username: '',
-            nameRules: [
-                v => !!v || 'Username is required',
-                v => (v && v.length <= 10) || 'Username must be less than 10 characters',
-            ],
-            password: '',
-        }),
-        methods: {
-            async login() {
-                if (!this.username) {
-                    this.snackbar = true;
-                    return
-                }
-                this.loginStarted = true;
-                try {
-                    let response = await this.$auth.loginWith('local', { data: {
-                            username: this.username,
-                            password: this.password
-                        }
-                    }).then(response => {
-                        if (response.data.status === 1) {
-                            this.snacktext = "Login successful";
-                            this.snackbar = true;
-                            setTimeout(() => {
-                                window.location.href = '/inspire';
-                            }, 3000)
-                        } else {
-                            this.snacktext = response.data.body;
-                            this.snackbar = true;
-                            this.loginStarted = false;
-                        }
-                    });
-                    console.log(response)
-                } catch (e) {
-                    this.loginStarted = false;
-                    console.log(e)
-                }
-            },
-            forgot() {
-                if (!this.username) {
-                    this.snackbar = true;
-                }
-                this.$refs.form.reset()
-            },
-        },
-    }
+export default {
+  name: "login",
+  data: () => ({
+    loginStarted: false,
+    snackbar: false,
+    snacktext: "Enter your username",
+    valid: true,
+    username: '',
+    nameRules: [
+      v => !!v || 'Username is required',
+      v => (v && v.length <= 10) || 'Username must be less than 10 characters',
+    ],
+    password: '',
+  }),
+  methods: {
+    async login() {
+      if (!this.username) {
+        this.snackbar = true;
+        return
+      }
+      this.loginStarted = true;
+      try {
+        let response = await this.$auth.loginWith('local', {
+          data: {
+            username: this.username,
+            password: this.password
+          }
+        }).then(response => {
+          if (response.data.status === 1) {
+            this.snacktext = "Login successful";
+            this.snackbar = true;
+            setTimeout(() => {
+              window.location.href = '/inspire';
+            }, 3000)
+          } else {
+            this.snacktext = response.data.body;
+            console.log(response.data.body);
+            this.snackbar = true;
+            this.loginStarted = false;
+          }
+        }).catch(e => {
+          this.snacktext = "Wrong username or password!";
+          this.snackbar = true;
+          this.loginStarted = false;
+        });
+        console.log(response)
+      } catch (e) {
+        this.loginStarted = false;
+        console.log(e)
+      }
+    },
+    forgot() {
+      if (!this.username) {
+        this.snackbar = true;
+      }
+      this.$refs.form.reset()
+    },
+  },
+}
 </script>
 
 <style scoped>
