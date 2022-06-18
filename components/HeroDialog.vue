@@ -386,7 +386,7 @@
                 if (storageInfo !== null) {
                     return JSON.parse(storageInfo);
                 }
-                await fetch("http://" + this.corsanywhereHost + ":44297/https://www.wowhead.com/item=" + itemID + "&xml", requestOptions)
+                this.$axios.get("" + itemID + "&xml", requestOptions)
                     .then(response => response.text())
                     .then(result => {
                         // console.log(result);
