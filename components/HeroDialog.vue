@@ -228,15 +228,17 @@
                         v-for="(mount, i) in mountsData"
                         :key="i">
                         <v-row>
-                          <a :href="`https://www.wowhead.com/item=${mount.id}`" style="border: 2px solid #7F828B" :data-wowhead="`item=${mount.id}`" target="_blank">
+                          <a :href="`https://www.wowhead.com/item=${mount.id}`" style="border: 2px solid #7F828B"
+                             :data-wowhead="`item=${mount.id}`" target="_blank">
                             <v-img :src="mount.icon"/>
                           </a>
-                          <a :href="`https://www.wowhead.com/item=${mount.id}`" style="font-weight: bold;color: white;" :data-wowhead="`item=${mount.id}`" target="_blank">
+                          <a :href="`https://www.wowhead.com/item=${mount.id}`" style="font-weight: bold;color: white;"
+                             :data-wowhead="`item=${mount.id}`" target="_blank">
                             {{mount.name}}
                           </a>
                         </v-row>
                       </v-col>
-                      <h3 v-if="!mounts">This hero has no mounts currently!</h3>
+                      <h3 v-if="!mounts">This hero has no mount currently!</h3>
                     </v-row>
                   </v-card>
                 </v-stepper-content>
@@ -257,17 +259,22 @@
                       <v-col
                         style="margin: 5px;"
                         lg="3"
+                        v-if="companionsData"
                         v-for="(companion, i) in companionsData"
                         :key="i">
                         <v-row>
-                          <a :href="`https://www.wowhead.com/item=${companion.id}`" style="border: 2px solid #7F828B" :data-wowhead="`item=${companion.id}`" target="_blank">
+                          <a :href="`https://www.wowhead.com/item=${companion.id}`" style="border: 2px solid #7F828B"
+                             :data-wowhead="`item=${companion.id}`" target="_blank">
                             <v-img :src="companion.icon"/>
                           </a>
-                          <a :href="`https://www.wowhead.com/item=${companion.id}`" style="font-weight: bold;color: white;" :data-wowhead="`item=${companion.id}`" target="_blank">
+                          <a :href="`https://www.wowhead.com/item=${companion.id}`"
+                             style="font-weight: bold;color: white;" :data-wowhead="`item=${companion.id}`"
+                             target="_blank">
                             {{companion.name}}
                           </a>
                         </v-row>
                       </v-col>
+                      <h3 v-if="companionsData.length === 0">This hero has no pet currently!</h3>
                     </v-row>
                   </v-card>
                 </v-stepper-content>
@@ -275,8 +282,10 @@
                 <!-- Note section (buy hero) -->
                 <v-stepper-content step="5"
                                    v-if="note">
-                  <v-card style="padding: 30px;margin-top: 80px;background-color:rgba(0, 0, 0, 0.5);" class="justify-center" >
-                    <h2 class="text-center">This note is written by hero owner to emphasize on hero important features</h2>
+                  <v-card style="padding: 30px;margin-top: 80px;background-color:rgba(0, 0, 0, 0.5);"
+                          class="justify-center">
+                    <h2 class="text-center">This note is written by hero owner to emphasize on hero important
+                      features</h2>
                     <v-divider></v-divider>
                     <h3 class="text-center">{{note}}</h3>
                   </v-card>
@@ -292,224 +301,222 @@
 </template>
 
 <script>
-    import {wowDicts} from '../components/wowDicts'
+  import {wowDicts} from '../components/wowDicts'
 
-    export default {
-        middleware: 'auth',
-        name: "HeroDialog",
-        props: ["dialog", "heroName", "closeFunc", "note"],
-        head: {
-            script: [{
-                src: 'https://wow.zamimg.com/widgets/power.js'
-            }]
-        },
-        watch: {
-            dialog(visible) {
-                if (visible) {
-                    console.log(this.heroName);
-                    this.$axios.get("/wow/hero_info/" + this.heroName).then(async (response) => {
-                        const respData = response.data.body;
-                        console.log(respData);
-                        this.heroID = respData.id;
-                        this.race = respData.race;
-                        this.gender = respData.gender;
-                        this.level = respData.level;
-                        this.heroClass = respData.class;
-                        this.equippedCache = respData.equipment_cache;
-                        this.achievementsIDs = respData.achievements;
-                        this.mounts = respData.mounts;
-                        this.companions = respData.pets;
-                        const eqsplitted = this.equippedCache.split(" ");
+  export default {
+    middleware: 'auth',
+    name: "HeroDialog",
+    props: ["dialog", "heroName", "closeFunc", "note"],
+    head: {
+      script: [{
+        src: 'https://wow.zamimg.com/widgets/power.js'
+      }]
+    },
+    watch: {
+      dialog(visible) {
+        if (visible) {
 
-                        // Reputation array
-                        this.wotlkReputations.map(item => {
-                            let standing = 0;
-                            respData.reputations.map(rep => {
-                                if (rep.faction == item.id)
-                                    standing = rep.standing
-                            });
-                            this.reputations.push({name: item.name, standing: standing, max: item.max});
-                        });
+          this.$axios.get("/wow/hero_info/" + this.heroName).then(async (response) => {
+            const respData = response.data.body;
 
-                        for (let i = 0; i < eqsplitted.length; i += 2) {
-                            this.items.push(eqsplitted[i])
-                        }
-                        if (this.race == 2 || this.race == 5 || this.race == 6 || this.race == 10 || this.race == 8) {
-                            this.backgroundImage = require("~/static/hero_dialogs/orgrimmar_blur.png");
-                            this.horde = true;
-                        } else {
-                            this.backgroundImage =   require("~/static/hero_dialogs/stormwind_blur.png");
-                            this.horde = false;
-                        }
+            this.heroID = respData.id;
+            this.race = respData.race;
+            this.gender = respData.gender;
+            this.level = respData.level;
+            this.heroClass = respData.class;
+            this.equippedCache = respData.equipment_cache;
+            this.achievementsIDs = respData.achievements;
+            this.mounts = respData.mounts;
+            this.companions = respData.pets;
+            const eqsplitted = this.equippedCache.split(" ");
 
-                        // parse items
-                        for (let i = 0; i < 8; i++) {
-                            let r1 = await this.parseItemId(this.items[i]);
-                            this.leftItems.push(r1);
-                            let r2 = await this.parseItemId(this.items[i + 8]);
-                            this.rightItems.push(r2);
-                        }
-                        for (let i = 15; i < 19; i++) {
-                            if (this.items[i] != "0") {
-                                console.log(this.items[i]);
-                                let r3 = await this.parseItemId(this.items[i]);
-                                this.bottomItems.push(r3)
-                            }
-                        }
-                        console.log(this.heroClass);
-                        console.log(this.heroClasses);
-                        this.loading = false;
-                    })
-                } else {
-                    Object.assign(this.$data, this.$options.data())
-                }
+            // Reputation array
+            this.wotlkReputations.map(item => {
+              let standing = 0;
+              respData.reputations.map(rep => {
+                if (rep.faction == item.id)
+                  standing = rep.standing
+              });
+              this.reputations.push({name: item.name, standing: standing, max: item.max});
+            });
+
+            for (let i = 0; i < eqsplitted.length; i += 2) {
+              this.items.push(eqsplitted[i])
             }
-        },
-        mounted() {
-        },
-        methods: {
-            async parseItemId(itemID) {
-                var requestOptions = {
-                    method: 'GET',
-                    redirect: 'follow',
-                };
-                let iteminfo = {};
-                if (itemID == "0") {
-                    iteminfo.icon = "https://wow.zamimg.com/images/wow/icons/large/inv_misc_questionmark.jpg"
-                    iteminfo.name = "No item";
-                    iteminfo.id = "0";
-                    iteminfo.level = "0";
-                    return iteminfo;
-                }
-                const storageInfo = localStorage.getItem(itemID);
-                // Cache system
-                if (storageInfo !== null) {
-                    return JSON.parse(storageInfo);
-                }
-                this.$axios.get("" + itemID + "&xml", requestOptions)
-                    .then(response => response.text())
-                    .then(result => {
-                        // console.log(result);
-                        const parser = new DOMParser();
-                        let xmlDoc = parser.parseFromString(result, "text/xml");
-                        iteminfo.id = itemID;
-                        iteminfo.name = xmlDoc.getElementsByTagName("name")[0].innerHTML
-                            .replaceAll("<![CDATA[", "")
-                            .replaceAll("]]>", "");
-                        iteminfo.level = xmlDoc.getElementsByTagName("level")[0].innerHTML;
-                        iteminfo.icon = 'https://wow.zamimg.com/images/wow/icons/large/' + xmlDoc.getElementsByTagName("icon")[0].innerHTML + '.jpg';
-
-                        // Cache system
-                        localStorage.setItem(itemID, JSON.stringify(iteminfo))
-                    })
-                    .catch(error => console.log('error', error));
-                return iteminfo
-            },
-            closeDialog() {
-                this.$emit("close-func")
-            },
-            async changeMenu(step) {
-                this.selectedMenu = step.toString();
-                if (step == 1) {
-                    this.achievementLoading = true;
-                    // Parse achievements
-                    const parseAchievementID = async (aID) => {
-                        var requestOptions = {
-                            method: 'GET',
-                            redirect: 'follow',
-                        };
-                        let aInfo = {};
-
-                        const storageInfo = localStorage.getItem(aID + 'a');
-                        // Cache system
-                        if (storageInfo !== null) {
-                            return JSON.parse(storageInfo);
-                        }
-                        await fetch("http://" + this.corsanywhereHost + ":44297/https://www.wowhead.com/achievement=" + aID, requestOptions)
-                            .then(response => response.text())
-                            .then(result => {
-                                const rigidInfo = JSON.parse(result.split('<script type="application/ld+json">')[1].split("<\/script>")[0]);
-                                aInfo.id = aID;
-                                aInfo.name = rigidInfo.name;
-                                aInfo.description = rigidInfo.description.replace('In the Character Achievements category. Always up to date with the latest patch (9.1.5).', '')
-                                    .replace('Always up to date with the latest patch (9.1.5).', '');
-
-                                // cache system
-                                localStorage.setItem(aID + 'a', JSON.stringify(aInfo))
-                            });
-                        return aInfo
-                    };
-                    if (this.achievements.length === 0)
-                        for (let i = 0; i < this.achievementsIDs.length; i++)
-                            this.achievements.push(await parseAchievementID(this.achievementsIDs[i]));
-                    this.achievementLoading = false;
-                }
-
-                if (step == 3) {
-                    if (this.mountsData.length > 0) {
-                        this.mountsLoading = false;
-                        return
-                    }
-                    this.mountsLoading = true;
-                    if (this.mounts)
-                      this.mounts.map(async (item) => {
-                          let itemInfo = await this.parseItemId(item.id);
-                          this.mountsData.push(itemInfo);
-                      });
-                    this.mountsLoading = false;
-                }
-
-                if (step == 4) {
-                    if (this.companionsData) {
-                        this.companionsLoading = false;
-                        return
-                    }
-                    this.companionsLoading = true;
-                    this.companions.map(async (item) => {
-                        let itemInfo = await this.parseItemId(item);
-                        this.companionsData.push(itemInfo);
-                    });
-                    this.companionsLoading = false;
-                }
+            if (this.race == 2 || this.race == 5 || this.race == 6 || this.race == 10 || this.race == 8) {
+              this.backgroundImage = require("~/static/hero_dialogs/orgrimmar_blur.png");
+              this.horde = true;
+            } else {
+              this.backgroundImage = require("~/static/hero_dialogs/stormwind_blur.png");
+              this.horde = false;
             }
-        },
-        data() {
-            return {
-                heroID: 0,
-                race: 0,
-                gender: false,
-                level: 0,
-                heroClass: 0,
-                equippedCache: "",
-                horde: false,
-                items: [],
-                leftItems: [],
-                rightItems: [],
-                bottomItems: [],
-                achievementsIDs: [],
-                achievements: [],
-                reputations: [],
-                selectedMenu: 0,
-                menuItems: ["Equipments", "Achievements", "Reputation", "Mounts", "Pets"],
-                backgroundImage: "",
-                loading: true,
-                notifications: false,
-                sound: true,
-                widgets: false,
-                heroClasses: wowDicts.heroClasses,
-                heroRaces: wowDicts.heroRaces,
-                wotlkReputations: wowDicts.wotlkReputations,
-                achievementLoading: true,
-                mounts: [],
-                mountsData: [],
-                mountsLoading: true,
-                companions: [],
-                companionsData: [],
-                companionsLoading: true,
-                corsanywhereHost: "decentrawow.com",
+
+            // parse items
+            for (let i = 0; i < 8; i++) {
+              let r1 = await this.parseItemId(this.items[i]);
+              this.leftItems.push(r1);
+              let r2 = await this.parseItemId(this.items[i + 8]);
+              this.rightItems.push(r2);
             }
-        },
-    }
+            for (let i = 15; i < 19; i++) {
+              if (this.items[i] != "0") {
+                console.log(this.items[i]);
+                let r3 = await this.parseItemId(this.items[i]);
+                this.bottomItems.push(r3)
+              }
+            }
+
+            this.loading = false;
+          })
+        } else {
+          Object.assign(this.$data, this.$options.data())
+        }
+      }
+    },
+    mounted() {
+    },
+    methods: {
+      async parseItemId(itemID) {
+        var requestOptions = {
+          method: 'GET',
+          redirect: 'follow',
+        };
+        let iteminfo = {};
+        if (itemID == "0") {
+          iteminfo.icon = "https://wow.zamimg.com/images/wow/icons/large/inv_misc_questionmark.jpg"
+          iteminfo.name = "No item";
+          iteminfo.id = "0";
+          iteminfo.level = "0";
+          return iteminfo;
+        }
+        const storageInfo = localStorage.getItem(itemID);
+        // Cache system
+        if (storageInfo !== null) {
+          return JSON.parse(storageInfo);
+        }
+        await this.$axios.get("/cashcors/item=" + itemID + "&xml", requestOptions)
+          .then(response => {
+            const parser = new DOMParser();
+            let xmlDoc = parser.parseFromString(response.data, "text/xml");
+            iteminfo.id = itemID;
+            iteminfo.name = xmlDoc.getElementsByTagName("name")[0].innerHTML
+              .replaceAll("<![CDATA[", "")
+              .replaceAll("]]>", "");
+            iteminfo.level = xmlDoc.getElementsByTagName("level")[0].innerHTML;
+            iteminfo.icon = 'https://wow.zamimg.com/images/wow/icons/large/' + xmlDoc.getElementsByTagName("icon")[0].innerHTML + '.jpg';
+
+            // Cache system
+            localStorage.setItem(itemID, JSON.stringify(iteminfo))
+          });
+        return iteminfo
+      },
+      closeDialog() {
+        this.$emit("close-func")
+      },
+      async changeMenu(step) {
+        this.selectedMenu = step.toString();
+        if (step == 1) {
+          this.achievementLoading = true;
+          // Parse achievements
+          const parseAchievementID = async (aID) => {
+            var requestOptions = {
+              method: 'GET',
+              redirect: 'follow',
+            };
+            let aInfo = {};
+
+            const storageInfo = localStorage.getItem(aID + 'a');
+            // Cache system
+            if (storageInfo !== null) {
+              return JSON.parse(storageInfo);
+            }
+            await this.$axios.get("/cashcors/" + "achievement=" + aID, requestOptions)
+              .then(response => {
+                const rigidInfo = JSON.parse(response.data.split('<script type="application/ld+json">')[1].split("<\/script>")[0]);
+                aInfo.id = aID;
+                aInfo.name = rigidInfo.name;
+                aInfo.description = rigidInfo.description.replace('In the Character Achievements category. Always up to date with the latest patch (9.1.5).', '')
+                  .replace('Always up to date with the latest patch (9.1.5).', '');
+
+                // cache system
+                localStorage.setItem(aID + 'a', JSON.stringify(aInfo))
+              });
+            return aInfo
+          };
+          if (this.achievements.length === 0)
+            for (let i = 0; i < this.achievementsIDs.length; i++)
+              this.achievements.push(await parseAchievementID(this.achievementsIDs[i]));
+          this.achievementLoading = false;
+        }
+
+        if (step == 3) {
+          if (this.mountsData.length > 0) {
+            this.mountsLoading = false;
+            return
+          }
+          this.mountsLoading = true;
+          if (this.mounts)
+            this.mounts.map(async (item) => {
+              let itemInfo = await this.parseItemId(item.id);
+              this.mountsData.push(itemInfo);
+            });
+          this.mountsLoading = false;
+        }
+
+        if (step == 4) {
+          if (this.companionsData.length > 0) {
+            this.companionsLoading = false;
+            return
+          }
+          this.companionsLoading = true;
+
+          if (this.companions) {
+            this.companions.map(async (item) => {
+              let itemInfo = await this.parseItemId(item);
+              this.companionsData.push(itemInfo);
+            });
+          }
+          this.companionsLoading = false;
+        }
+      }
+    },
+    data() {
+      return {
+        heroID: 0,
+        race: 0,
+        gender: false,
+        level: 0,
+        heroClass: 0,
+        equippedCache: "",
+        horde: false,
+        items: [],
+        leftItems: [],
+        rightItems: [],
+        bottomItems: [],
+        achievementsIDs: [],
+        achievements: [],
+        reputations: [],
+        selectedMenu: 0,
+        menuItems: ["Equipments", "Achievements", "Reputation", "Mounts", "Pets"],
+        backgroundImage: "",
+        loading: true,
+        notifications: false,
+        sound: true,
+        widgets: false,
+        heroClasses: wowDicts.heroClasses,
+        heroRaces: wowDicts.heroRaces,
+        wotlkReputations: wowDicts.wotlkReputations,
+        achievementLoading: true,
+        mounts: [],
+        mountsData: [],
+        mountsLoading: true,
+        companions: [],
+        companionsData: [],
+        companionsLoading: true,
+        corsanywhereHost: "decentrawow.com",
+      }
+    },
+  }
 </script>
 
 <style scoped>
