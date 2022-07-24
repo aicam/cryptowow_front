@@ -336,7 +336,6 @@
                 this.dialogTitle = "Pending Transaction";
                 this.dialogText = "Please approve transaction in your wallet";
                 this.dialog = true;
-                console.log("1");
                 if (!this.connector)
                     return;
                 if (this.selectedCurrency === 'CWT') {
