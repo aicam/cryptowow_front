@@ -2,103 +2,15 @@
   <v-row justify="end" align="center">
 
     <!-- None display -->
-    <v-dialog
-      v-model="sellingDialog"
-      width="1000">
-      <v-card style="padding: 50px;">
-        <v-card-title style="margin-bottom: 10px;" class="text-h2 lighten-1">
-          Selling {{heroSelectedName}}
-        </v-card-title>
-        <v-stepper v-model="sellingSteps" justify="space-between">
-          <v-stepper-content step="0">
-            <h4>Add new price based on available cryptocurrencies</h4>
-            <h4 style="color: orangered;font-weight: bold">Note: customers will choose to buy with currency they prefer.</h4>
-            <h4>You can write price both in float (0.0025) or exponent of 10 (25e-4)</h4>
-            <v-row style="margin-bottom: 10px; border-bottom: 2px solid orangered;">
-              <v-col lg="4">
-                <v-text-field
-                  v-model="cPrice"
-                  label="Price"></v-text-field>
-              </v-col>
-              <v-col lg="4">
-                <v-select v-model="cCrypto" :items="currencies">
-                  <template v-slot:selection="{item, index}">
-                    {{item}}
-                    <v-divider></v-divider>
-                    <v-img max-width="48px" :src="require(`~/static/currencies/${item}.png`)"/>
-                  </template>
-                  <template v-slot:item="{item}">
-                    {{item}}
-                    <v-divider></v-divider>
-                    <v-img max-width="48px" :src="require(`~/static/currencies/${item}.png`)"/>
-                  </template>
-                </v-select>
-              </v-col>
-              <v-col lg="4">
-                <v-btn
-                  @click="addPrice"
-                >
-                  Add
-                </v-btn>
-              </v-col>
-            </v-row>
-            <v-row v-for="(price, i) in prices" :key="i">
-              <v-col lg="3" class="justify-center text-center">
-                <h4>{{price.value}}</h4>
-              </v-col>
-              <v-col lg="3">
-                <h4>{{price.name}}</h4>
-              </v-col>
-              <v-col lg="2">
-                <v-img max-width="48" :src="require(`~/static/currencies/${price.name}.png`)"/>
-              </v-col>
-              <v-col lg="2">
-                <v-btn
-                  outlined
-                  color="red"
-                  @click="prices = prices.filter(obj => {return obj.name !== price.name})">
-                  Delete
-                </v-btn>
-              </v-col>
-            </v-row>
-          </v-stepper-content>
+    <SellHeroDialog :sellingDialog="sellingDialog"
+                    :heroSelectedName="heroSelectedName"
+                    :currencies="currencies"
+                    :pushNewHero="(hero) => currentSellingHeros.push(hero)"
+                    :snackbarAction="(txt) => {snackbar = true; snackbarText = txt}"
+                    v-on:close="() => {sellingDialog = false}"
+    />
+    <HeroDialog :dialog="dialog" :hero-name="inpsectingHeroName" v-on:close-func="closeHeroDialog"/>
 
-          <v-stepper-content step="1">
-            <h4>Write a note about your hero to justify its price and value (less than 300 characters).</h4>
-            <h4>Your hero information same as the "inspect" option for your hero will be available for shopper, in
-              addition, hero gold, total kill and your note
-              will be added to this information.</h4>
-            <v-textarea
-              filled
-              name="input-7-1"
-              label="Note"
-              hint="Mention hero distinguishable options, achievements, guild and ..."
-              counter="300"
-              v-model="note"
-            ></v-textarea>
-          </v-stepper-content>
-        </v-stepper>
-        <v-card-actions class="justify-end">
-          <v-btn
-            v-if="sellingSteps === 1"
-            color="#AC2020"
-            @click="sellingSteps = 0"
-          >
-            Back
-          </v-btn>
-          <v-btn
-            class="success"
-            @click="sellingSteps === 0 ? goNoteStep() : finalizeSell()">
-            {{sellingSteps === 0 ? "Next" : "Finish"}}
-          </v-btn>
-          <v-btn
-            class="warning"
-            @click="sellingDialog = false">
-            Close
-          </v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
     <v-snackbar
       v-model="snackbar">
       {{snackbarText}}
@@ -114,8 +26,6 @@
       </template>
     </v-snackbar>
 
-
-    <HeroDialog :dialog="dialog" :hero-name="inpsectingHeroName" v-on:close-func="closeHeroDialog"/>
     <v-col md="3">
       <v-card style="padding: 25px">
         <v-row justify="space-around">
@@ -314,9 +224,10 @@
 <script>
     import {wowDicts} from '../components/wowDicts'
     import HeroDialog from "../components/HeroDialog";
+    import SellHeroDialog from "@/components/ClientDashboard/SellHeroDialog";
 
     export default {
-        components: {HeroDialog},
+        components: {SellHeroDialog, HeroDialog},
         middleware: 'auth',
         head: {
             script: [{
@@ -351,7 +262,7 @@
                     this.snackbar = true;
                     return
                 }
-                this.$axios.get("/wow/restore_hero/" + this.heroSelectedName).then(response => {
+                this.$store.dispatch("hero/restoreHero", {heroName: this.heroSelectedName}).then(response => {
                     this.snackbarText = response.data.body;
                     this.snackbar = true;
                 })
@@ -359,58 +270,13 @@
             sellHero: function () {
                 this.sellingDialog = true;
             },
-            addPrice: function () {
-                let exist = false;
-                this.prices.map(price => {
-                    if (price.name === this.cCrypto) {
-                        this.snackbarText = "Pick another currency or delete the existing one";
-                        this.snackbar = true;
-                        exist = true;
-                    }
-                });
-                if (!exist)
-                    this.prices.push({value: this.cPrice, name: this.cCrypto});
-            },
-            goNoteStep: function () {
-                if (this.prices.length < this.currencies.length) {
-                    this.snackbarText = "All crypto prices should be specified";
-                    this.snackbar = true;
-                    return
-                }
-                this.sellingSteps = 1;
-            },
-            finalizeSell: function () {
-                if (this.note.length > 350) {
-                    this.snackbarText = "Please edit your note!!";
-                    this.snackbar = true;
-                    return
-                }
-                let priceTxT = "";
-                this.prices.map(price => {
-                    priceTxT += price.value + '-' + price.name + '&'
-                });
-                priceTxT = priceTxT.substring(0, priceTxT.length - 1);
-                this.$axios.post("/wow/sell_hero", JSON.stringify({
-                    hero_name: this.heroSelectedName,
-                    hero_price: priceTxT,
-                    note: this.note
-                }))
-                    .then(response => {
-                        this.sellingDialog = false;
-                        this.snackbarText = response.data.body;
-                        this.snackbar = true;
-                        if (response.data.status === 1) {
-                            this.currentSellingHeros.push(this.heroSelectedName);
-                        }
-                    });
-            },
             cancelSellingHero: function () {
                 if (!this.currentSellingHeros.includes(this.heroSelectedName)) {
                     this.snackbarText = "Hero is not for sale already!!";
                     this.snackbar = true;
                     return
                 }
-                this.$axios.get("/wow/cancel_selling_hero/" + this.heroSelectedName).then(response => {
+                this.$store.dispatch("hero/cancelSellingHero", {heroName: this.heroSelectedName}).then(response => {
                     this.snackbarText = response.data.body;
                     this.snackbar = true;
                     if (response.data.status === 1) {
@@ -448,7 +314,7 @@
             })
         },
         data() {
-            return ({
+            return {
                 dialog: false,
                 inpsectingHeroName: "",
                 whTooltips: {colorLinks: true, iconizeLinks: true, renameLinks: true},
@@ -466,15 +332,12 @@
                 snackbar: false,
                 snackbarText: "",
                 sellingDialog: false,
-                cPrice: "",
-                cCrypto: "",
-                prices: [],
                 newPrice: "",
                 newCrypto: "",
                 note: "",
                 sellingSteps: 0,
                 currentSellingHeros: []
-            })
+            }
         }
     }
 </script>

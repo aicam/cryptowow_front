@@ -16,7 +16,6 @@
         </v-btn>
       </template>
     </v-snackbar>
-    <!-- /Snack bars -->
 
     <v-row align="center" justify="center">
       <v-card style="padding: 50px;">
@@ -109,7 +108,6 @@ export default {
             }, 3000)
           } else {
             this.snacktext = response.data.body;
-            console.log(response.data.body);
             this.snackbar = true;
             this.loginStarted = false;
           }
@@ -118,10 +116,8 @@ export default {
           this.snackbar = true;
           this.loginStarted = false;
         });
-        console.log(response)
       } catch (e) {
         this.loginStarted = false;
-        console.log(e)
       }
     },
     forgot() {
