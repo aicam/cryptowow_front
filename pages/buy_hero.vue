@@ -220,7 +220,7 @@
             }
         },
         data() {
-            return ({
+            return {
                 heroClasses: wowDicts.heroClasses,
                 heroRaces: wowDicts.heroRaces,
                 sellingHeros: null,
@@ -231,7 +231,7 @@
                 selectedCurrency: null,
                 snackbar: false,
                 snackbarText: ""
-            })
+            }
         }
     }
 </script>

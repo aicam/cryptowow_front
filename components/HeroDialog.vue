@@ -301,7 +301,8 @@
 </template>
 
 <script>
-  import {wowDicts} from '../components/wowDicts'
+  import {wowDicts} from '@/components/wowDicts'
+  const whTooltips = {colorLinks: true, iconizeLinks: true, renameLinks: true};
 
   export default {
     middleware: 'auth',
@@ -309,7 +310,7 @@
     props: ["dialog", "heroName", "closeFunc", "note"],
     head: {
       script: [{
-        src: 'https://wow.zamimg.com/widgets/power.js'
+        src: 'https://wow.zamimg.com/js/tooltips.js'
       }]
     },
     watch: {
