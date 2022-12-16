@@ -1,5 +1,5 @@
 <template>
-  <v-simple-table v-if="heros">
+  <v-simple-table v-if="heros.length">
     <template v-slot:default>
       <thead>
       <tr>
@@ -74,7 +74,11 @@ export default {
     return {
       heroClasses: wowDicts.heroClasses,
       heroRaces: wowDicts.heroRaces,
-
+    }
+  },
+  watch: {
+    heros: (new_val) => {
+      console.log('heros new val ', new_val)
     }
   }
 }

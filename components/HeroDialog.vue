@@ -319,7 +319,6 @@
 
           this.$axios.get("/wow/hero_info/" + this.heroName).then(async (response) => {
             const respData = response.data.body;
-
             this.heroID = respData.id;
             this.race = respData.race;
             this.gender = respData.gender;
@@ -328,10 +327,12 @@
             this.equippedCache = respData.equipment_cache;
             this.achievementsIDs = respData.achievements;
             this.mounts = respData.mounts;
+            console.log('mounts ', this.mounts)
             this.companions = respData.pets;
             const eqsplitted = this.equippedCache.split(" ");
 
             // Reputation array
+            if (respData.reputations !== null)
             this.wotlkReputations.map(item => {
               let standing = 0;
               respData.reputations.map(rep => {

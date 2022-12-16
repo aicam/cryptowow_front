@@ -22,7 +22,7 @@ export const wowDicts = {
     7: {name: "Shaman", icon: "https://wow.zamimg.com/images/wow/icons/medium/classicon_shaman.jpg"},
     8: {name: "Mage", icon: "https://wow.zamimg.com/images/wow/icons/medium/classicon_mage.jpg"},
     9: {name: "Warlock", icon: "https://wow.zamimg.com/images/wow/icons/medium/classicon_warlock.jpg"},
-    10: {name: "Druid", icon: "https://wow.zamimg.com/images/wow/icons/medium/classicon_druid.jpg"}
+    11: {name: "Druid", icon: "https://wow.zamimg.com/images/wow/icons/medium/classicon_druid.jpg"}
   },
   heroRaces: {
     1: {

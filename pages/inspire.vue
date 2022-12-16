@@ -36,7 +36,8 @@
         <!--    <WoWTooltip text="hello" ><v-img class="tooltip" src="https://wow.zamimg.com/images/wow/icons/large/inv_hand_1h_mawraid_d_01.jpg" max-width="60px" /></WoWTooltip>-->
         <h1>Heros</h1>
         <h4 v-if="!heros">You have no heros, go to game with your username and create one</h4>
-        <HerosTable :currentSellingHeros="currentSellingHeros"
+        <HerosTable
+                    :currentSellingHeros="currentSellingHeros"
                     :heros="heros"
                     :changeHeroSelected="(name) => {heroSelectedName = name}"
                     :changeInspectingHero="(name) => {inpsectingHeroName = name; dialog = true;}"
