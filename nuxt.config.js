@@ -80,7 +80,7 @@ export default {
   // Build Configuration: https://go.nuxtjs.dev/config-build
   build: {},
   axios: {
-    baseURL: 'http://localhost:4300/'
+    baseURL: 'https://gb2qnmdz0c.execute-api.us-east-1.amazonaws.com/dev/'
   },
 
   auth: {
